@@ -1,49 +1,276 @@
+/* Material 3 design tokens — baseline scheme, light & dark. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --md-sys-color-primary: #6750a4;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #eaddff;
+  --md-sys-color-on-primary-container: #21005d;
+  --md-sys-color-secondary-container: #e8def8;
+  --md-sys-color-on-secondary-container: #1d192b;
+  --md-sys-color-surface: #fef7ff;
+  --md-sys-color-on-surface: #1d1b20;
+  --md-sys-color-surface-container-lowest: #ffffff;
+  --md-sys-color-surface-container-low: #f7f2fa;
+  --md-sys-color-surface-container: #f3edf7;
+  --md-sys-color-surface-container-high: #ece6f0;
+  --md-sys-color-on-surface-variant: #49454f;
+  --md-sys-color-outline: #79747e;
+  --md-sys-color-outline-variant: #cac4d0;
+
+  /* Chart tokens — validated against the light surface. */
+  --chart-stroke: #6750a4;
+  --chart-grid: #cac4d0;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --md-sys-color-primary: #d0bcff;
+    --md-sys-color-on-primary: #381e72;
+    --md-sys-color-primary-container: #4f378b;
+    --md-sys-color-on-primary-container: #eaddff;
+    --md-sys-color-secondary-container: #4a4458;
+    --md-sys-color-on-secondary-container: #e8def8;
+    --md-sys-color-surface: #141218;
+    --md-sys-color-on-surface: #e6e0e9;
+    --md-sys-color-surface-container-lowest: #0f0d13;
+    --md-sys-color-surface-container-low: #1d1b20;
+    --md-sys-color-surface-container: #211f26;
+    --md-sys-color-surface-container-high: #2b2930;
+    --md-sys-color-on-surface-variant: #cac4d0;
+    --md-sys-color-outline: #938f99;
+    --md-sys-color-outline-variant: #49454f;
+
+    /* Dark-mode marks are their own step, not a flip: validated vs #141218. */
+    --chart-stroke: #9a82db;
+    --chart-grid: #49454f;
   }
-}
-
-html {
-  height: 100%;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
   box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
   padding: 0;
+}
+
+body {
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  font-family: var(--font-roboto), Roboto, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Material 3 typescale (the subset this app uses). */
+.md-typescale-display-small {
+  font-size: 36px;
+  line-height: 44px;
+  font-weight: 400;
+}
+.md-typescale-headline-small {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 400;
+}
+.md-typescale-title-medium {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  letter-spacing: 0.15px;
+}
+.md-typescale-body-medium {
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+}
+.md-typescale-label-medium {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.md-typescale-label-small {
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* Page frame */
+.page {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+}
+
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.masthead h1 {
   margin: 0;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+.masthead .subtitle {
+  margin: 4px 0 0;
+  color: var(--md-sys-color-on-surface-variant);
+  max-width: 60ch;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+md-tabs {
+  --md-primary-tab-container-color: transparent;
+  min-width: 280px;
+}
+
+/* Fallback so the tab bar holds its shape before custom elements upgrade. */
+md-tabs:not(:defined) {
+  display: flex;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+md-primary-tab:not(:defined) {
+  flex: 1;
+  padding: 14px 16px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Cards */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.card {
+  background: var(--md-sys-color-surface-container-low);
+  border-radius: 12px;
+  box-shadow: var(--shadow-1);
+  padding: 20px 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.card--hero {
+  grid-column: 1 / -1;
+  border-top: 4px solid var(--md-sys-color-primary);
+  padding-top: 24px;
+}
+
+.card h2,
+.card h3 {
+  margin: 0;
+  font-weight: 500;
+}
+
+.card .metric-value {
+  font-variant-numeric: tabular-nums;
+  margin: 2px 0 0;
+}
+
+.hero-value {
+  font-size: 52px;
+  line-height: 60px;
+  font-weight: 400;
+}
+
+.metric-meta {
+  color: var(--md-sys-color-on-surface-variant);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  align-items: baseline;
+}
+
+.delta-chip {
+  display: inline-block;
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  border-radius: 8px;
+  padding: 2px 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.formula-chip {
+  display: inline-block;
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  border-radius: 8px;
+  padding: 4px 12px;
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.proxy-note {
+  margin: 2px 0 0;
+  color: var(--md-sys-color-on-surface-variant);
+  font-style: italic;
+}
+
+.source-line {
+  color: var(--md-sys-color-on-surface-variant);
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.no-data {
+  color: var(--md-sys-color-on-surface-variant);
+  border: 1px dashed var(--md-sys-color-outline-variant);
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  margin: 12px 0;
+}
+
+/* Chart */
+.chart-wrap {
+  position: relative;
+  margin-top: 8px;
+}
+
+.chart-wrap svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.chart-tooltip {
+  position: absolute;
+  transform: translate(-50%, 0);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 8px;
+  box-shadow: var(--shadow-1);
+  padding: 6px 10px;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.chart-tooltip .tt-year {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.chart-axis-text {
+  fill: var(--md-sys-color-on-surface-variant);
+  font-size: 10.5px;
+  font-family: inherit;
+}
+
+footer.colophon {
+  margin-top: 32px;
+  color: var(--md-sys-color-on-surface-variant);
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+  padding-top: 16px;
 }
