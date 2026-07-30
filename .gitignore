@@ -40,5 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# private drafts
-/docs
+# private drafts (implementation notes are the one public exception)
+/docs/*
+!/docs/IMPLEMENTATION.md
