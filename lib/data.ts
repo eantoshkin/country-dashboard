@@ -2,6 +2,7 @@ import type {
   CountryCode,
   CountryDashboard,
   MetricSeries,
+  RankingEntry,
   ValueFormat,
   YearPoint,
 } from "./types";
@@ -17,24 +18,30 @@ interface WbRow {
   value: number | null;
 }
 
-async function wbSeries(
+async function wbMulti(
   indicator: string,
-): Promise<Record<CountryCode, YearPoint[]>> {
-  const url = `https://api.worldbank.org/v2/country/COL;USA/indicator/${indicator}?format=json&per_page=400&date=1990:2035`;
+  codes: string[],
+): Promise<Map<string, YearPoint[]>> {
+  const url = `https://api.worldbank.org/v2/country/${codes.join(";")}/indicator/${indicator}?format=json&per_page=20000&date=1990:2035`;
   const res = await fetch(url, REVALIDATE);
   if (!res.ok) throw new Error(`World Bank ${indicator}: HTTP ${res.status}`);
   const json = (await res.json()) as [unknown, WbRow[] | null];
-  const out: Record<CountryCode, YearPoint[]> = { COL: [], USA: [] };
+  const out = new Map<string, YearPoint[]>(codes.map((c) => [c, []]));
   for (const row of json[1] ?? []) {
     if (row.value == null) continue;
-    const code = row.countryiso3code;
-    if (code === "COL" || code === "USA") {
-      out[code].push({ year: Number(row.date), value: row.value });
-    }
+    out
+      .get(row.countryiso3code)
+      ?.push({ year: Number(row.date), value: row.value });
   }
-  out.COL.sort((a, b) => a.year - b.year);
-  out.USA.sort((a, b) => a.year - b.year);
+  for (const points of out.values()) points.sort((a, b) => a.year - b.year);
   return out;
+}
+
+async function wbSeries(
+  indicator: string,
+): Promise<Record<CountryCode, YearPoint[]>> {
+  const map = await wbMulti(indicator, ["COL", "USA"]);
+  return { COL: map.get("COL") ?? [], USA: map.get("USA") ?? [] };
 }
 
 interface FredObs {
@@ -127,6 +134,77 @@ async function safe<T>(promise: Promise<T>, what: string): Promise<T | null> {
     console.error(`[dashboard] ${what} failed:`, err);
     return null;
   }
+}
+
+/* --------------------------------- ranking ----------------------------------- */
+
+/** Ranked countries, in the order requested for the World ranking tab. */
+const RANKING_COUNTRIES: Array<{ code: string; name: string }> = [
+  { code: "USA", name: "United States" },
+  { code: "CAN", name: "Canada" },
+  { code: "AUS", name: "Australia" },
+  { code: "JPN", name: "Japan" },
+  { code: "SGP", name: "Singapore" },
+  { code: "KOR", name: "South Korea" },
+  { code: "GBR", name: "United Kingdom" },
+  { code: "CHE", name: "Switzerland" },
+  { code: "CHN", name: "China" },
+  { code: "FRA", name: "France" },
+  { code: "ISR", name: "Israel" },
+  { code: "NOR", name: "Norway" },
+  { code: "IND", name: "India" },
+  { code: "NLD", name: "Netherlands" },
+  { code: "ARE", name: "UAE" },
+  { code: "SWE", name: "Sweden" },
+  { code: "FIN", name: "Finland" },
+  { code: "ITA", name: "Italy" },
+  { code: "POL", name: "Poland" },
+  { code: "DEU", name: "Germany" },
+  { code: "RUS", name: "Russia" },
+  { code: "CHL", name: "Chile" },
+  { code: "PER", name: "Peru" },
+  { code: "BRA", name: "Brazil" },
+  { code: "MEX", name: "Mexico" },
+  { code: "PRT", name: "Portugal" },
+  { code: "COL", name: "Colombia" },
+  { code: "ARG", name: "Argentina" },
+  { code: "PRY", name: "Paraguay" },
+  { code: "ECU", name: "Ecuador" },
+  { code: "URY", name: "Uruguay" },
+  { code: "PAN", name: "Panama" },
+  { code: "CRI", name: "Costa Rica" },
+  { code: "UKR", name: "Ukraine" },
+  { code: "ESP", name: "Spain" },
+  { code: "VEN", name: "Venezuela" },
+  { code: "THA", name: "Thailand" },
+  { code: "TUR", name: "Turkey" },
+  { code: "IDN", name: "Indonesia" },
+];
+
+export async function getRankingData(): Promise<RankingEntry[]> {
+  const codes = RANKING_COUNTRIES.map((c) => c.code);
+  const [marketCap, listed, population] = await Promise.all([
+    safe(wbMulti("CM.MKT.LCAP.CD", codes), "ranking market cap"),
+    safe(wbMulti("CM.MKT.LDOM.NO", codes), "ranking listed companies"),
+    safe(wbMulti("SP.POP.TOTL", codes), "ranking population"),
+  ]);
+
+  const entries = RANKING_COUNTRIES.map(({ code, name }): RankingEntry => {
+    const points = joinYears(
+      [
+        marketCap?.get(code) ?? [],
+        listed?.get(code) ?? [],
+        population?.get(code) ?? [],
+      ],
+      ([m, c, p]) => (m * c) / p,
+    ).slice(-YEARS_SHOWN);
+    return { code, name, points, latest: points.at(-1) ?? null };
+  });
+
+  // Countries with no computable index sink to the bottom, keeping list order.
+  return entries.sort(
+    (a, b) => (b.latest?.value ?? -Infinity) - (a.latest?.value ?? -Infinity),
+  );
 }
 
 /* --------------------------------- assembly ---------------------------------- */

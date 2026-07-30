@@ -3,13 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import LineChart from "./LineChart";
 import MetricCard from "./MetricCard";
+import Ranking from "./Ranking";
 import { fmtCompact, fmtDelta } from "@/lib/format";
-import type { CountryDashboard } from "@/lib/types";
+import type { CountryDashboard, RankingEntry } from "@/lib/types";
 
 export default function Dashboard({
   countries,
+  ranking,
 }: {
   countries: CountryDashboard[];
+  ranking: RankingEntry[];
 }) {
   const [selected, setSelected] = useState(0);
   const tabsRef = useRef<HTMLElement & { activeTabIndex: number }>(null);
@@ -26,7 +29,8 @@ export default function Dashboard({
     return () => tabs.removeEventListener("change", onChange);
   }, []);
 
-  const country = countries[selected];
+  const showRanking = selected >= countries.length;
+  const country = countries[Math.min(selected, countries.length - 1)];
   const hero = country.hero;
   const heroFirst = hero.points[0];
   const heroDelta =
@@ -48,10 +52,14 @@ export default function Dashboard({
               {c.name}
             </md-primary-tab>
           ))}
+          <md-primary-tab active={showRanking}>World ranking</md-primary-tab>
         </md-tabs>
       </header>
 
       <main>
+        {showRanking ? (
+          <Ranking entries={ranking} />
+        ) : (
         <section className="grid">
           <article className="card card--hero">
             <h2 className="md-typescale-title-medium">
@@ -95,6 +103,7 @@ export default function Dashboard({
             <MetricCard key={m.id} series={m} />
           ))}
         </section>
+        )}
       </main>
 
       <footer className="colophon md-typescale-label-medium">

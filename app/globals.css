@@ -268,6 +268,80 @@ md-primary-tab:not(:defined) {
   font-family: inherit;
 }
 
+/* Ranking table */
+.table-scroll {
+  overflow-x: auto;
+  margin-top: 8px;
+}
+
+.rank-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.rank-table th {
+  text-align: left;
+  color: var(--md-sys-color-on-surface-variant);
+  font-weight: 500;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  white-space: nowrap;
+}
+
+.rank-table td {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  white-space: nowrap;
+}
+
+.rank-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.rank-table .rank-num {
+  color: var(--md-sys-color-on-surface-variant);
+  width: 2.5em;
+}
+
+.rank-table .value-cell {
+  font-weight: 500;
+}
+
+.rank-table .spark-cell {
+  width: 170px;
+}
+
+.rank-table tr.section-row td {
+  color: var(--md-sys-color-on-surface-variant);
+  padding-top: 20px;
+  border-bottom: none;
+}
+
+.rank-table tr.stale td {
+  opacity: 0.55;
+}
+
+.rank-table tr.row-focus td {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.rank-table tr.row-focus td:first-child {
+  border-left: 3px solid var(--md-sys-color-primary);
+}
+
+.spark-wrap {
+  position: relative;
+  width: 150px;
+}
+
+.spark-wrap svg {
+  display: block;
+  width: 150px;
+  height: 40px;
+}
+
 footer.colophon {
   margin-top: 32px;
   color: var(--md-sys-color-on-surface-variant);

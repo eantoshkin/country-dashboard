@@ -19,6 +19,14 @@ export interface MetricSeries {
   source: string;
 }
 
+export interface RankingEntry {
+  code: string;
+  name: string;
+  /** Last ~10 joint years of the index, ascending. Empty when uncomputable. */
+  points: YearPoint[];
+  latest: YearPoint | null;
+}
+
 export interface CountryDashboard {
   code: CountryCode;
   name: string;

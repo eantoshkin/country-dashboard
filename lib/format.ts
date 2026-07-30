@@ -10,7 +10,9 @@ const STEPS: Array<[number, string]> = [
 function compactNumber(v: number): string {
   const abs = Math.abs(v);
   if (abs < 10_000) {
-    return Number.isInteger(v) ? v.toLocaleString("en-US") : v.toFixed(1);
+    return v.toLocaleString("en-US", {
+      maximumFractionDigits: Number.isInteger(v) ? 0 : 1,
+    });
   }
   for (const [step, suffix] of STEPS) {
     if (abs >= step) {
