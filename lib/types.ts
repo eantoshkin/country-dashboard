@@ -25,6 +25,10 @@ export interface RankingEntry {
   /** Last ~10 joint years of the index, ascending. Empty when uncomputable. */
   points: YearPoint[];
   latest: YearPoint | null;
+  /** Set when the latest point is hand-collected from exchange statistics. */
+  manualSource?: string;
+  /** Honest reason why no current figure exists for this country. */
+  unrankedReason?: string;
 }
 
 export interface CountryDashboard {

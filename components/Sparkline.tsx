@@ -12,9 +12,12 @@ const PAD = 4;
 export default function Sparkline({
   points,
   format,
+  showRange = false,
 }: {
   points: YearPoint[];
   format: ValueFormat;
+  /** Render the first/last year under the line, like a mini axis. */
+  showRange?: boolean;
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [hover, setHover] = useState<number | null>(null);
@@ -91,6 +94,12 @@ export default function Sparkline({
         >
           <span className="tt-year">{h.year}</span>{" "}
           <span>{fmtCompact(h.value, format)}</span>
+        </div>
+      )}
+      {showRange && (
+        <div className="spark-range" aria-hidden="true">
+          <span>{minYear}</span>
+          <span>{maxYear}</span>
         </div>
       )}
     </div>

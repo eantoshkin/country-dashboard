@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Sparkline from "./Sparkline";
 import { fmtCompact, fmtDelta } from "@/lib/format";
 import type { RankingEntry } from "@/lib/types";
@@ -8,7 +9,13 @@ const FOCUS_CODES = new Set(["COL", "USA"]);
 
 const MAX_AGE_YEARS = 5;
 
+type SortKey = "index" | "delta";
+
 export default function Ranking({ entries }: { entries: RankingEntry[] }) {
+  const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({
+    key: "index",
+    dir: -1,
+  });
   const withData = entries.filter((e) => e.latest);
   const noData = entries.filter((e) => !e.latest);
   const currentYear = Math.max(...withData.map((e) => e.latest!.year));
@@ -18,6 +25,34 @@ export default function Ranking({ entries }: { entries: RankingEntry[] }) {
   const outdated = withData.filter(
     (e) => e.latest!.year < currentYear - MAX_AGE_YEARS,
   );
+
+  // Canonical rank always follows the index, whatever the sort shows.
+  const rows = ranked.map((entry, i) => {
+    const first = entry.points[0];
+    const deltaPct =
+      first && first.value !== 0
+        ? ((entry.latest!.value - first.value) / Math.abs(first.value)) * 100
+        : null;
+    return { entry, rank: i + 1, deltaPct };
+  });
+  const sortedRows = [...rows].sort((a, b) => {
+    const value = (r: (typeof rows)[number]) =>
+      sort.key === "index" ? r.entry.latest!.value : (r.deltaPct ?? -Infinity);
+    return (value(b) - value(a)) * (sort.dir === -1 ? 1 : -1);
+  });
+
+  const toggleSort = (key: SortKey) =>
+    setSort((s) =>
+      s.key === key ? { key, dir: s.dir === -1 ? 1 : -1 } : { key, dir: -1 },
+    );
+  const ariaSort = (key: SortKey) =>
+    sort.key === key
+      ? sort.dir === -1
+        ? ("descending" as const)
+        : ("ascending" as const)
+      : undefined;
+  const arrow = (key: SortKey) =>
+    sort.key === key ? (sort.dir === -1 ? " ▾" : " ▴") : "";
 
   return (
     <section className="grid">
@@ -31,9 +66,10 @@ export default function Ranking({ entries }: { entries: RankingEntry[] }) {
         <p className="metric-meta md-typescale-label-medium">
           Ranked by the latest published value no older than {MAX_AGE_YEARS}{" "}
           years — the year column shows exactly how fresh each figure is.
-          Countries whose exchanges stopped reporting to the World Bank longer
-          ago are listed below the ranking, unranked, because decades-old
-          dollar values can&apos;t be compared fairly.
+          Where the World Bank series stopped years ago, the latest point is
+          hand-collected from exchange statistics and marked with †. Should a
+          country lose its only credible source, it drops below the ranking,
+          unranked. Click the Index or Change headers to sort.
         </p>
 
         <div className="table-scroll">
@@ -42,19 +78,35 @@ export default function Ranking({ entries }: { entries: RankingEntry[] }) {
               <tr className="md-typescale-label-medium">
                 <th className="num">#</th>
                 <th>Country</th>
-                <th>Last 10 years</th>
-                <th className="num">Index</th>
-                <th className="num">Δ over shown years</th>
+                <th className="col-spark">History</th>
+                <th className="num" aria-sort={ariaSort("index")}>
+                  <button
+                    type="button"
+                    className="sort-btn"
+                    onClick={() => toggleSort("index")}
+                  >
+                    Index{arrow("index")}
+                  </button>
+                </th>
+                <th className="num col-delta" aria-sort={ariaSort("delta")}>
+                  <button
+                    type="button"
+                    className="sort-btn"
+                    onClick={() => toggleSort("delta")}
+                  >
+                    Change{arrow("delta")}
+                  </button>
+                </th>
                 <th className="num">Data year</th>
               </tr>
             </thead>
             <tbody className="md-typescale-body-medium">
-              {ranked.map((e, i) => (
+              {sortedRows.map(({ entry, rank }) => (
                 <RankingRow
-                  key={e.code}
-                  entry={e}
-                  rank={i + 1}
-                  stale={e.latest!.year < currentYear - 2}
+                  key={entry.code}
+                  entry={entry}
+                  rank={rank}
+                  stale={entry.latest!.year < currentYear - 2}
                 />
               ))}
               {outdated.length > 0 && (
@@ -74,6 +126,29 @@ export default function Ranking({ entries }: { entries: RankingEntry[] }) {
           </table>
         </div>
 
+        {outdated.some((e) => e.unrankedReason) && (
+          <p className="proxy-note md-typescale-label-medium">
+            Why some countries can&apos;t be updated:{" "}
+            {outdated
+              .filter((e) => e.unrankedReason)
+              .map((e) => `${e.name} — ${e.unrankedReason}`)
+              .join("; ")}
+            .
+          </p>
+        )}
+        {ranked.some((e) => e.manualSource) && (
+          <p className="proxy-note md-typescale-label-medium">
+            † Hand-collected from exchange statistics (non-USD figures at each
+            source&apos;s published rate; company counts may include
+            growth-market segments, so not strictly comparable with older World
+            Bank values):{" "}
+            {ranked
+              .filter((e) => e.manualSource)
+              .map((e) => `${e.name} — ${e.manualSource}`)
+              .join("; ")}
+            .
+          </p>
+        )}
         {noData.length > 0 && (
           <p className="proxy-note md-typescale-label-medium">
             No published stock-market data (their exchanges don&apos;t report to
@@ -81,7 +156,9 @@ export default function Ranking({ entries }: { entries: RankingEntry[] }) {
           </p>
         )}
         <p className="source-line md-typescale-label-small">
-          Source: World Bank (CM.MKT.LCAP.CD, CM.MKT.LDOM.NO, SP.POP.TOTL)
+          Source: World Bank (CM.MKT.LCAP.CD, CM.MKT.LDOM.NO, SP.POP.TOTL),
+          supplemented with exchange statistics where the World Bank series
+          stopped
         </p>
       </article>
     </section>
@@ -109,12 +186,30 @@ function RankingRow({
     >
       <td className="num rank-num">{rank ?? "—"}</td>
       <td>{entry.name}</td>
-      <td className="spark-cell">
-        <Sparkline points={entry.points} format="index" />
+      <td className="spark-cell col-spark">
+        <Sparkline points={entry.points} format="index" showRange />
       </td>
       <td className="num value-cell">{fmtCompact(latest.value, "index")}</td>
-      <td className="num">{delta ?? "—"}</td>
-      <td className="num">{latest.year}</td>
+      <td className="num col-delta">
+        {delta ? (
+          <>
+            <span
+              className={`delta-pill ${latest.value >= first!.value ? "pos" : "neg"}`}
+            >
+              {delta}
+            </span>
+            <span className="delta-since"> since {first!.year}</span>
+          </>
+        ) : (
+          "—"
+        )}
+      </td>
+      <td className="num">
+        {latest.year}
+        {entry.manualSource && (
+          <span title={entry.manualSource}>&thinsp;†</span>
+        )}
+      </td>
     </tr>
   );
 }

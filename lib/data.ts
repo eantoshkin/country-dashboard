@@ -181,6 +181,65 @@ const RANKING_COUNTRIES: Array<{ code: string; name: string }> = [
   { code: "IDN", name: "Indonesia" },
 ];
 
+/**
+ * Latest figures hand-collected from exchange statistics (session of
+ * 2026-07-30) for countries whose World Bank series stopped years ago.
+ * Non-USD figures converted at the rate each source publishes (EUR at
+ * $1.08/€ for the Euronext/Nasdaq batch). Company counts follow each
+ * exchange's published totals, which may include growth-market segments —
+ * slightly broader than the World Bank's "listed domestic companies".
+ */
+const MANUAL_LATEST: Record<
+  string,
+  { year: number; marketCapUsd: number; companies: number; source: string }
+> = {
+  FRA: { year: 2026, marketCapUsd: 3.61e12, companies: 800, source: "Euronext Paris via CEIC, Jun 2026" },
+  NLD: { year: 2025, marketCapUsd: 1.65e12, companies: 160, source: "Euronext Amsterdam, Mar 2025" },
+  ITA: { year: 2025, marketCapUsd: 1.13e12, companies: 411, source: "Borsa Italiana via ANSA, Dec 2025" },
+  NOR: { year: 2025, marketCapUsd: 3.66e11, companies: 341, source: "Euronext Oslo Børs, Q2 2025" },
+  PRT: { year: 2025, marketCapUsd: 9.2e10, companies: 34, source: "Euronext Lisbon via CEIC, Mar 2025" },
+  SWE: { year: 2025, marketCapUsd: 1.33e12, companies: 363, source: "Nasdaq Stockholm, Dec 2025" },
+  FIN: { year: 2025, marketCapUsd: 3.43e11, companies: 183, source: "Nasdaq Helsinki incl. First North, Q4 2025" },
+  ECU: { year: 2025, marketCapUsd: 1.14e10, companies: 21, source: "Bolsa de Valores de Quito / MarketScreener, 2025" },
+  // Second batch (same session): countries whose WB data was 2021-2023.
+  // GBR: domestic-only Main Market cap ($3.99T) + domestic AIM (~$80B);
+  // count includes closed-end funds, which the World Bank excludes.
+  GBR: { year: 2025, marketCapUsd: 4.07e12, companies: 1199, source: "LSE domestic incl. AIM, via CEIC & Baker McKenzie, Dec 2025" },
+  // RUS: unique common-stock issuers (MOEX's 260 counts pref shares separately);
+  // sanctions-era captive domestic market, CBR-type FX rate.
+  RUS: { year: 2025, marketCapUsd: 6.84e11, companies: 182, source: "MOEX FY2025 release (RUB 52.9T), Dec 2025" },
+  // MEX: WFE Focus — the same source the WB series drew from; directly comparable.
+  MEX: { year: 2026, marketCapUsd: 5.93e11, companies: 126, source: "BMV via WFE Focus, Mar 2026" },
+  // ARG: BYMA audited annual report; USD at MEP rate (≈ official since Apr 2025
+  // FX unification). Excludes CEDEARs and NYSE-only issuers, matching WB scope.
+  ARG: { year: 2025, marketCapUsd: 8.03e10, companies: 83, source: "BYMA annual report, MEP rate, Dec 2025" },
+  // CRI: BNV self-reports to FIAB; ~14 equity trades/month, so a thin-market valuation.
+  CRI: { year: 2025, marketCapUsd: 3.73e9, companies: 9, source: "BNV via FIAB monthly report, Dec 2025" },
+  // Third batch (same session): the four formerly-unrankable countries.
+  // UKR: OECD "Stronger Financial Markets…for Ukraine's Recovery" (Mar 2026)
+  // cites PFTS cap UAH 21.5bn, Aug 2025 (NBU rate ≈41.45); only 6 of ~1,600
+  // public companies effectively trade — a dormant-market proxy, not a
+  // WB-comparable series.
+  UKR: { year: 2025, marketCapUsd: 5.2e8, companies: 6, source: "OECD citing PFTS (UAH 21.5bn, NBU rate), Aug 2025 — near-dormant market, 6 traded companies" },
+  // VEN: BVC is rallying (cap doubled in a year; Bloomberg corroborates ~$20bn,
+  // May 2026). Official BCV rate — parallel-market premium makes USD values
+  // rate-sensitive. Count: FIAB shows 36 domestic / 0 foreign (Sep 2025).
+  VEN: { year: 2026, marketCapUsd: 2.1788e10, companies: 36, source: "BVC via Finanzas Digital at official BCV rate, Apr 2026; count per FIAB" },
+  // PRY: FIAB tables 1.1/1.2, natively USD; YoY cross-checked vs Dec 2024 PDF.
+  PRY: { year: 2025, marketCapUsd: 2.3046e9, companies: 56, source: "BVA via FIAB monthly report, Dec 2025" },
+  // URY: cap = FIAB (BEVSA-reported; BVM doesn't feed FIAB, may slightly
+  // understate); count = BVM's official share-issuer register (7 issuers).
+  URY: { year: 2025, marketCapUsd: 2.8821e8, companies: 7, source: "BEVSA/BVM via FIAB monthly report & issuer register, Dec 2025" },
+};
+
+/**
+ * Countries that stay unranked, with the honest reason. Empty since
+ * 2026-07-30 — every ranking country now has a current figure (the last
+ * four came via OECD/PFTS, BVC, and FIAB) — but the mechanism stays for
+ * the day a series dies again.
+ */
+const NO_CURRENT_DATA: Record<string, string> = {};
+
 export async function getRankingData(): Promise<RankingEntry[]> {
   const codes = RANKING_COUNTRIES.map((c) => c.code);
   const [marketCap, listed, population] = await Promise.all([
@@ -190,7 +249,7 @@ export async function getRankingData(): Promise<RankingEntry[]> {
   ]);
 
   const entries = RANKING_COUNTRIES.map(({ code, name }): RankingEntry => {
-    const points = joinYears(
+    let points = joinYears(
       [
         marketCap?.get(code) ?? [],
         listed?.get(code) ?? [],
@@ -198,7 +257,35 @@ export async function getRankingData(): Promise<RankingEntry[]> {
       ],
       ([m, c, p]) => (m * c) / p,
     ).slice(-YEARS_SHOWN);
-    return { code, name, points, latest: points.at(-1) ?? null };
+
+    const manual = MANUAL_LATEST[code];
+    // Prefer the population of the manual point's own year; the World Bank
+    // hasn't published one yet for current-year figures, so fall back to the
+    // latest available rather than dropping the point — a <1%/yr denominator
+    // vintage gap is immaterial next to the disclosed manual-source caveats.
+    const popPoints = population?.get(code);
+    const pop =
+      popPoints?.find((p) => p.year === manual?.year) ?? popPoints?.at(-1);
+    let manualSource: string | undefined;
+    if (manual && pop && (points.at(-1)?.year ?? 0) < manual.year) {
+      points = [
+        ...points,
+        {
+          year: manual.year,
+          value: (manual.marketCapUsd * manual.companies) / pop.value,
+        },
+      ].slice(-YEARS_SHOWN);
+      manualSource = manual.source;
+    }
+
+    return {
+      code,
+      name,
+      points,
+      latest: points.at(-1) ?? null,
+      ...(manualSource ? { manualSource } : {}),
+      ...(NO_CURRENT_DATA[code] ? { unrankedReason: NO_CURRENT_DATA[code] } : {}),
+    };
   });
 
   // Countries with no computable index sink to the bottom, keeping list order.
