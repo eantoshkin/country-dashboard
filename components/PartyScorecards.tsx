@@ -1,4 +1,5 @@
 import { JUDGED_BY, type PartyScorecard } from "@/lib/laws-co";
+import ScoreScale from "./ScoreScale";
 
 function band(v: number): "good" | "mixed" | "poor" {
   if (v >= 60) return "good";
@@ -32,10 +33,9 @@ function Card({ c }: { c: PartyScorecard }) {
           <span className="score-scale">/100</span>
         </span>
       </div>
-      <md-linear-progress
-        className="score-meter"
-        value={c.alignment / 100}
-        aria-label={`${c.party} alignment ${c.alignment} out of 100`}
+      <ScoreScale
+        value={c.alignment}
+        ariaLabel={`${c.party} alignment ${c.alignment} out of 100`}
       />
       <p className="party-basis md-typescale-label-small">
         <md-icon aria-hidden="true">{ICON[b]}</md-icon>
@@ -62,27 +62,33 @@ export default function PartyScorecards({
 
   return (
     <section className="laws-section" id="parties">
-      <h2 className="section-heading md-typescale-title-large">
-        <md-icon aria-hidden="true">groups</md-icon>
-        Where each bench stands
-      </h2>
+      <div className="section-heading-wrap">
+        <p className="section-kicker md-typescale-label-medium">
+          Party record · 01
+        </p>
+        <h2 className="section-heading md-typescale-title-large">
+          Where each bench stands
+        </h2>
+      </div>
 
       <p className="section-intro md-typescale-body-medium">
         Backing something scored above 50 counts for a bench, backing something
         below 50 counts against, and opposing is the mirror. Filing a bill
         counts the same as voting for it. The arithmetic is mechanical, but it
-        runs entirely on the scores {JUDGED_BY.model} assigned below — so this
+        runs entirely on the scores {JUDGED_BY.model}{" "}assigned below — so
+        this
         is a summary of a model&apos;s judgment, not an independent measurement.
       </p>
 
-      <p className="editorial-note caveat md-typescale-body-medium">
+      <p className="record-caveat md-typescale-body-medium">
         <md-icon aria-hidden="true">warning</md-icon>
         <span>
-          <strong>Why so few benches.</strong> Only {lawsWithRollCall} of the{" "}
-          {totalLaws}{" "}
-          laws here {lawsWithRollCall === 1 ? "has" : "have"}{" "}
-          a published per-party roll call, because
-          Colombia&apos;s vote records live in Gaceta PDFs rather than any
+          <strong>
+            {lawsWithRollCall} of {totalLaws} laws{" "}
+            {lawsWithRollCall === 1 ? "has" : "have"} a verified party roll
+            call.
+          </strong>{" "}
+          Colombia&apos;s published records live in Gaceta PDFs rather than any
           machine-readable source. So this is mostly a record of what each bench{" "}
           <em>files</em>, not how it votes, and several parties holding seats
           appear below with nothing scoreable at all. Read it as a fragment of

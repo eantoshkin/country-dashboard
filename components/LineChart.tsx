@@ -5,7 +5,6 @@ import { fmtCompact, fmtFull } from "@/lib/format";
 import type { ValueFormat, YearPoint } from "@/lib/types";
 
 const VB_W = 600;
-const VB_H = 210;
 const PAD = { top: 10, right: 14, bottom: 24, left: 52 };
 
 interface Props {

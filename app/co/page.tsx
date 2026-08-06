@@ -45,39 +45,64 @@ export default async function ColombiaPage() {
   const unrecorded = partiesWithoutRecord(COLOMBIA_LAWS);
 
   return (
-    <div className="page">
+    <div className="page co-page">
       <MaterialLoader />
 
       <header className="masthead co-masthead">
-        <div>
+        <div className="co-header-topline">
           <Link href="/" className="back-btn md-typescale-label-large">
             <md-icon aria-hidden="true">arrow_back</md-icon>
-            Good Country Dashboard
+            Dashboard
           </Link>
+          <span className="co-edition md-typescale-label-medium">
+            Legislative monitor · 2025–2026
+          </span>
+        </div>
+        <div className="co-title-block">
+          <p className="co-eyebrow md-typescale-label-medium">
+            Colombia · public economy
+          </p>
           <h1 className="md-typescale-headline-medium">
             Colombia — what Congress is actually doing
           </h1>
           <p className="subtitle md-typescale-body-large">
-            The index says how Colombia is doing. This page asks who is doing
-            something about it.
+            A sourced ledger of the laws that could widen—or narrow—the
+            country&apos;s public economy.
           </p>
         </div>
+        <nav className="co-jump-nav" aria-label="On this page">
+          <a href="#parties">
+            <span>01</span> Party record
+          </a>
+          <a href="#in-discussion">
+            <span>02</span> In discussion
+          </a>
+          <a href="#passed">
+            <span>03</span> Passed
+          </a>
+        </nav>
       </header>
 
-      <main>
-        <section className="grid">
-          <article className="card card--hero co-hero">
+      <main id="main-content">
+        <section className="co-overview" aria-labelledby="index-heading">
+          <article className="co-hero">
             <div className="co-hero-figure">
-              <p className="co-hero-label md-typescale-label-medium">
-                Good Country Index · Colombia
-              </p>
+              <div className="co-index-heading">
+                <p
+                  className="co-hero-label md-typescale-label-medium"
+                  id="index-heading"
+                >
+                  Good Country Index
+                </p>
+                <span className="co-country-code">COL</span>
+              </div>
               {hero?.latest ? (
                 <>
                   <p className="metric-value hero-value">
                     {fmtCompact(hero.latest.value, hero.format)}
                   </p>
                   <p className="co-hero-year md-typescale-label-medium">
-                    as of {hero.latest.year}
+                    Latest comparable value · {hero.latest.year}
                   </p>
                 </>
               ) : (
@@ -88,64 +113,81 @@ export default async function ColombiaPage() {
               <span className="formula-chip md-typescale-label-medium">
                 (market cap × public companies) ÷ population
               </span>
+              <p className="co-index-caption md-typescale-body-medium">
+                Higher scores reward both market value and a broad base of
+                listed companies—not a single national champion.
+              </p>
             </div>
 
             <div className="co-hero-notes">
-              <p className="editorial-note md-typescale-body-medium">
-                <md-icon aria-hidden="true">gavel</md-icon>
-                <span>
-                  <strong>How to read the scores.</strong> Every law carries a
-                  0–100 score for how much it plausibly moves this index. The
-                  formula has three parts and a law can move any of them:{" "}
-                  <strong>market capitalisation</strong>, what listed firms are
-                  worth; <strong>the number of public companies</strong>, which
-                  grows from the bottom as startups and small businesses find
-                  investors and eventually list; and{" "}
-                  <strong>population</strong>. A law that only lifts the value
-                  of firms that already exist scores lower than one that widens
-                  the pipeline of new ones. The score is{" "}
-                  <strong>editorial judgment, not measured data</strong>, unlike
-                  every other number on this site. Disagree with it freely; each
-                  one states its reasoning in a line so there is something
-                  specific to disagree with.
-                </span>
-              </p>
-              <p className="editorial-note caveat md-typescale-body-medium">
-                <md-icon aria-hidden="true">diversity_3</md-icon>
-                <span>
-                  <strong>On dividing by population.</strong> Arithmetically, a
-                  shrinking country scores better on this index. Nothing here is
-                  scored that way. People build, staff and buy from the
-                  companies in the numerator, and a healthy working population
-                  grows that numerator faster than it grows the denominator — so
-                  laws that keep people alive, well and economically active are
-                  scored as <em>raising</em> the index. No law is ever credited
-                  for producing fewer people.
-                </span>
-              </p>
-              <p className="judged-by md-typescale-label-medium">
+              <header className="method-heading">
+                <p className="co-eyebrow md-typescale-label-medium">
+                  Scoring method
+                </p>
+                <h2>One score, three economic levers</h2>
+                <p className="md-typescale-body-medium">
+                  Each law receives a 0–100 directional score. The reasoning is
+                  published so the judgment can be challenged.
+                </p>
+              </header>
+              <ol className="lever-list">
+                <li>
+                  <span>01</span>
+                  <div>
+                    <strong>Market value</strong>
+                    <p>Does it help listed firms become more productive?</p>
+                  </div>
+                </li>
+                <li>
+                  <span>02</span>
+                  <div>
+                    <strong>Company pipeline</strong>
+                    <p>Does it help small firms form, finance, and list?</p>
+                  </div>
+                </li>
+                <li>
+                  <span>03</span>
+                  <div>
+                    <strong>People</strong>
+                    <p>
+                      Health and participation count positively; fewer people
+                      never earns credit.
+                    </p>
+                  </div>
+                </li>
+              </ol>
+              <div className="judged-by md-typescale-label-medium">
                 <md-icon aria-hidden="true">smart_toy</md-icon>
                 <span>
-                  <strong>Who made these calls.</strong> The scores, their
-                  reasoning, and the choice of which laws to include are the
-                  judgment of <strong>{JUDGED_BY.model}</strong> (
-                  {JUDGED_BY.vendor}, model <code>{JUDGED_BY.modelId}</code>),
-                  made on {JUDGED_BY.dateLabel}. A different model — or the same
-                  one on a different day — would likely score some of these
-                  differently. Nothing here was reviewed or endorsed by the
-                  people and parties named.
+                  <strong>Editorial scores, not measured data.</strong> Judged
+                  and curated by {JUDGED_BY.model} ({JUDGED_BY.vendor}),{" "}
+                  {JUDGED_BY.dateLabel}. Not reviewed or endorsed by the people
+                  and parties named.
                 </span>
-              </p>
-              <p className="proxy-note md-typescale-label-medium">
-                <strong>Coverage.</strong>{" "}
-                Congress passed about 114 laws in 2025, roughly a third of them
-                ceremonial. This is a set of landmark laws selected by{" "}
-                {JUDGED_BY.model}, not the full record. Vote records are
-                collected by hand from published
-                sources, because no API exposes Colombia&apos;s roll-call votes
-                — where a party&apos;s stance could not be verified it is marked{" "}
-                <em>Not verified</em> rather than guessed.
-              </p>
+              </div>
+              <details className="method-details">
+                <summary>Coverage &amp; methodology notes</summary>
+                <div className="method-details-body md-typescale-body-medium">
+                  <p>
+                    Congress passed about 114 laws in 2025, roughly a third
+                    ceremonial. These are landmark laws selected by{" "}
+                    {JUDGED_BY.model}, not the full record.
+                  </p>
+                  <p>
+                    Vote records are hand-collected from published sources.
+                    Where a party&apos;s stance could not be verified, it is marked{" "}
+                    <em>Not verified</em> rather than guessed.
+                  </p>
+                  <p>
+                    Population is never treated as a shortcut: a shrinking
+                    country scores better arithmetically, but no law is credited
+                    for producing fewer people.
+                  </p>
+                  <p>
+                    Model identifier: <code>{JUDGED_BY.modelId}</code>.
+                  </p>
+                </div>
+              </details>
             </div>
           </article>
         </section>
@@ -158,18 +200,22 @@ export default async function ColombiaPage() {
         />
 
         <section className="laws-section" id="in-discussion">
-          <h2 className="section-heading md-typescale-title-large">
-            <md-icon aria-hidden="true">pending_actions</md-icon>
-            In discussion
-            <span className="section-count md-typescale-label-medium">
-              {inDiscussion.length} bills · 2026–2030 Congress
-            </span>
-          </h2>
+          <div className="section-heading-wrap">
+            <p className="section-kicker md-typescale-label-medium">
+              Legislative pipeline · 02
+            </p>
+            <h2 className="section-heading md-typescale-title-large">
+              In discussion
+              <span className="section-count md-typescale-label-medium">
+                {inDiscussion.length} bills · 2026–2030 Congress
+              </span>
+            </h2>
+          </div>
           <p className="section-intro md-typescale-body-medium">
             The new Congress seated on 20 July 2026, so these are early-stage
             bills and none has been voted on yet.
           </p>
-          <div className="grid">
+          <div className="grid law-grid">
             {inDiscussion.map((law) => (
               <LawCard key={law.slug} law={law} />
             ))}
@@ -177,14 +223,18 @@ export default async function ColombiaPage() {
         </section>
 
         <section className="laws-section" id="passed">
-          <h2 className="section-heading md-typescale-title-large">
-            <md-icon aria-hidden="true">task_alt</md-icon>
-            Passed
-            <span className="section-count md-typescale-label-medium">
-              {passed.length} laws · 2022–2026 Congress
-            </span>
-          </h2>
-          <div className="grid">
+          <div className="section-heading-wrap">
+            <p className="section-kicker md-typescale-label-medium">
+              Legislative record · 03
+            </p>
+            <h2 className="section-heading md-typescale-title-large">
+              Passed
+              <span className="section-count md-typescale-label-medium">
+                {passed.length} laws · 2022–2026 Congress
+              </span>
+            </h2>
+          </div>
+          <div className="grid law-grid">
             {passed.map((law) => (
               <LawCard key={law.slug} law={law} />
             ))}

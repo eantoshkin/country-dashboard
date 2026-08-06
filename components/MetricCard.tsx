@@ -10,12 +10,15 @@ export default function MetricCard({ series }: { series: MetricSeries }) {
   const delta = latest && first ? fmtDelta(first.value, latest.value) : null;
 
   return (
-    <article className="card">
-      <h3 className="md-typescale-title-medium">{series.label}</h3>
+    <article className="card metric-card">
+      <header className="metric-card-heading">
+        <p className="md-typescale-label-small">Underlying series</p>
+        <h3>{series.label}</h3>
+      </header>
 
       {latest ? (
         <>
-          <p className="metric-value md-typescale-display-small">
+          <p className="metric-value">
             {fmtCompact(latest.value, series.format)}
           </p>
           <div className="metric-meta md-typescale-label-medium">

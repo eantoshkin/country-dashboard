@@ -12,6 +12,54 @@ Status of the Good Country Dashboard as of **2026-08-06**.
   Insights. Model attribution on every judgment. Scoring rubric revised after
   review to weigh company count and to reject the population denominator's
   perverse incentive.
+- **2026-08-06** — editorial UX refresh: warm-paper/navy visual system,
+  Newsreader display type, stronger page hierarchy and section navigation,
+  compact three-lever methodology, progressive disclosure for law evidence,
+  responsive law cards, skip navigation, visible focus states, reduced-motion
+  support, and a zero-overflow mobile layout at 390 px.
+- **2026-08-06** — brought the homepage and world ranking into the same
+  civic-ledger system: manifesto-led opening, ruled tab navigation, split
+  index/chart hero, editorial metric grid, and ranking header. Every 0–100 law
+  and party scale now marks 50 explicitly and prints the rule: below 50 lowers
+  the index, 50 is neutral, and above 50 improves it.
+
+## End-of-day session summary — 2026-08-06
+
+Today's work was a presentation and accessibility pass; the index formula,
+source data, manual supplements, law selection, and editorial scores were not
+changed.
+
+- Replaced the generic purple Material-demo appearance with one shared
+  editorial civic-ledger system: warm paper surfaces, navy ink, restrained
+  Colombian flag accents, flatter ruled layouts, Roboto body copy, and
+  Newsreader display typography.
+- Rebuilt `/co` around a clear reading order: country header and section
+  navigation, split index/method overview, visible model attribution, party
+  record, bills in discussion, and passed laws. Long methodology notes and
+  per-law vote/source evidence use native `<details>` disclosures to reduce
+  visual noise without hiding provenance.
+- Rebuilt `/` in the same visual language with a manifesto-led introduction,
+  ruled Material tab band, live Colombia country-file link, split index/chart
+  panel, editorial metric grid, and a dedicated world-ranking treatment. The
+  Colombia, United States, and ranking tab interactions and existing data
+  behavior remain intact.
+- Added shared `ScoreScale` rendering for all 18 editorial 0–100 scales (14
+  laws and 4 party/executive summaries). Every scale has a physical midpoint
+  marker and visible text for `< 50 lowers index`, `50 neutral`, and `> 50
+  improves index`; icons and words carry the meaning alongside color.
+- Added or tightened accessibility behavior: a skip link, visible focus
+  states, semantic links and headings, reduced-motion handling, stable
+  `aria-labelledby` naming for the `/co` overview even when index data is
+  unavailable, and no duplicate accessible label on the visible score key.
+- Updated responsive behavior for the overview, metric, party, law, and ranking
+  layouts; the browser pass found no horizontal overflow at the tested 390 px
+  mobile width. Added light/dark theme colors and corrected the dark-palette
+  validation comments to the configured `#101820` surface and container values.
+- Verification completed after the final fixes: ESLint passed with zero
+  warnings, TypeScript passed through `next build`, the production build
+  prerendered `/` and `/co`, `git diff --check` passed, both routes showed no
+  browser error overlay or console errors, the law disclosures worked, and all
+  homepage tabs changed views correctly.
 
 ## What this is
 
@@ -29,8 +77,9 @@ shouldn't define a country's success; broad entrepreneurship should.
 
 ### Country view (Colombia, United States tabs)
 
-- **Hero card**: the Good Country Index, latest value, Δ over the shown
-  decade, 10-year line chart.
+- **Split index panel**: the Good Country Index, latest value, Δ over the shown
+  decade, formula and interpretation on the ink panel, plus a 10-year line
+  chart and source on the adjoining paper panel.
 - **Six metric cards**, each with the current value and a 10-year chart:
   1. Public companies — World Bank `CM.MKT.LDOM.NO`
   2. Stock market size — World Bank `CM.MKT.LCAP.CD`
@@ -186,6 +235,11 @@ explicitly, and the page says so:
    health reform filed 21 July 2026 (45); the right-to-food amendment rose
    45 → 55 on the same human-capital reasoning.
 
+Every rendered 0–100 scale uses the shared `components/ScoreScale.tsx`
+component. It overlays a visible marker at 50 and prints all three meanings
+under the track (`< 50 lowers index`, `50 neutral`, `> 50 improves index`), so
+readers do not have to infer the threshold from score-band colors.
+
 #### Attribution
 
 Every judgment on the page is signed. `JUDGED_BY` in `lib/laws-co.ts` is the
@@ -237,6 +291,22 @@ Outlined via a `<link>`, because **next/font/google does not carry that family**
 (`Material_Symbols_Outlined` fails with "Unknown font"). Scores render as
 `md-linear-progress` meters rather than flat badges.
 
+Material Web remains the control layer rather than the page aesthetic: tabs,
+icons, dividers, and progress indicators are imported individually from the
+installed package, following its production quick-start. The surrounding
+layout uses an editorial civic-ledger treatment so dense public-policy content
+scans as a publication instead of a component gallery.
+
+#### Editorial layout and disclosure
+
+The `/co` page now presents information in a fixed reading order: country and
+section navigation, index, the three scoring levers, party evidence, bills in
+discussion, then passed laws. Editorial attribution stays visible in every law
+card and beside the methodology; longer coverage notes and per-law voting/source
+records use native `<details>` disclosure so they remain accessible without
+making the page read as a wall of caveats. On mobile the overview, methodology,
+party cards, and law grid collapse to one column without horizontal overflow.
+
 #### Ordering and entry points
 
 *In discussion* comes before *Passed* — what Congress is about to do matters
@@ -244,10 +314,11 @@ more than what it already did. Within each, laws sort newest first; a year-only
 date sorts to the end of its own year, since where it falls within the year
 isn't known.
 
-Three routes into `/co`: a filled pill beside the tab strip (always visible, on
-every tab), a banner inside the Colombia hero card, and Colombia's name in the
-world-ranking table. The pill sits **beside** `md-tabs`, never inside it — a
-non-tab child shifts `activeTabIndex` and breaks the
+Three routes into `/co`: the filled live-country-file panel beside the tab
+strip (always visible, on every tab), the link beneath the Colombia index
+chart, and Colombia's name in the world-ranking table. The country-file panel
+sits **beside** `md-tabs`, never inside it — a non-tab child shifts
+`activeTabIndex` and breaks the
 `selected >= countries.length` math that decides which panel renders.
 
 Section anchors `#parties`, `#in-discussion` and `#passed` allow deep links.
@@ -284,11 +355,11 @@ codebase — and check the served HTML, not just the source.
   `next.revalidate` — no API keys required anywhere.
 - **Material Web** (`@material/web` tabs, registered client-side via
   dynamic import) + Material 3 design tokens in `app/globals.css`, light
-  and dark schemes, Roboto.
+  and dark schemes, Roboto body copy, and Newsreader display typography.
 - **Charts**: hand-rolled SVG (`components/LineChart.tsx`,
   `components/Sparkline.tsx`) with crosshair/dot hover tooltips. Chart
   accent colors were validated for lightness, chroma, and contrast
-  against both surfaces: `#6750a4` (light) / `#9a82db` (dark).
+  against both surfaces: `#173f67` (light) / `#a9c7e5` (dark).
 - **Change capsules** (`--delta-pos`/`--delta-neg` tokens): green/red
   status colors validated against the card surfaces per mode — light
   `#006300`/`#d03b3b`, dark `#0ca30c`/`#e66767` (the darker red failed

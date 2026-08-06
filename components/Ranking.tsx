@@ -56,11 +56,14 @@ export default function Ranking({ entries }: { entries: RankingEntry[] }) {
     sort.key === key ? (sort.dir === -1 ? " ▾" : " ▴") : "";
 
   return (
-    <section className="grid">
-      <article className="card card--hero">
-        <h2 className="md-typescale-title-medium">
-          World ranking — Good Country Index
-        </h2>
+    <section className="ranking-view">
+      <article className="ranking-ledger">
+        <header className="ranking-heading">
+          <p className="dashboard-eyebrow md-typescale-label-medium">
+            World comparison
+          </p>
+          <h2>Good Country Index ranking</h2>
+        </header>
         <span className="formula-chip md-typescale-label-medium">
           (stock-market capitalization × public companies) ÷ population
         </span>

@@ -1,4 +1,5 @@
 import VoteBreakdown from "./VoteBreakdown";
+import ScoreScale from "./ScoreScale";
 import { JUDGED_BY } from "@/lib/laws-co";
 import type { Law } from "@/lib/types";
 
@@ -64,10 +65,9 @@ export default function LawCard({ law }: { law: Law }) {
             <span className="score-scale">/100</span>
           </span>
         </div>
-        <md-linear-progress
-          className="score-meter"
-          value={law.score / 100}
-          aria-label={`Index impact score ${law.score} out of 100`}
+        <ScoreScale
+          value={law.score}
+          ariaLabel={`Index impact score ${law.score} out of 100`}
         />
         <p className="score-reason md-typescale-label-medium">
           {law.scoreReason}
@@ -83,33 +83,49 @@ export default function LawCard({ law }: { law: Law }) {
 
       <p className="law-summary md-typescale-body-medium">{law.summary}</p>
 
-      <md-divider role="presentation" />
-
-      {law.tally && (
-        <p className="law-tally md-typescale-label-medium">
-          {law.chamber && <span className="tally-where">{law.chamber}</span>}
-          <span className="tally-nums">
-            <strong>{law.tally.for}</strong> for ·{" "}
-            <strong>{law.tally.against}</strong> against
-            {law.tally.notVoting != null && (
-              <> · {law.tally.notVoting} not voting</>
-            )}
+      <details className="law-evidence">
+        <summary>
+          <span>
+            {law.status === "passed"
+              ? "Voting record & sources"
+              : "Bill record & sources"}
           </span>
-        </p>
-      )}
+          <md-icon aria-hidden="true">expand_more</md-icon>
+        </summary>
+        <div className="law-evidence-body">
+          {law.tally && (
+            <p className="law-tally md-typescale-label-medium">
+              {law.chamber && (
+                <span className="tally-where">{law.chamber}</span>
+              )}
+              <span className="tally-nums">
+                <strong>{law.tally.for}</strong> for ·{" "}
+                <strong>{law.tally.against}</strong> against
+                {law.tally.notVoting != null && (
+                  <> · {law.tally.notVoting} not voting</>
+                )}
+              </span>
+            </p>
+          )}
 
-      <VoteBreakdown parties={law.parties} sponsor={law.sponsor} />
+          <VoteBreakdown parties={law.parties} sponsor={law.sponsor} />
 
-      <p className="source-line md-typescale-label-small">
-        {law.sources.map((s, i) => (
-          <span key={s.url}>
-            {i > 0 && " · "}
-            <a href={s.url} target="_blank" rel="noopener noreferrer">
-              {s.label}
-            </a>
-          </span>
-        ))}
-      </p>
+          <p className="source-line md-typescale-label-small">
+            <strong>Sources</strong>
+            {law.sources.map((s) => (
+              <a
+                href={s.url}
+                key={s.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {s.label}
+                <md-icon aria-hidden="true">open_in_new</md-icon>
+              </a>
+            ))}
+          </p>
+        </div>
+      </details>
     </article>
   );
 }

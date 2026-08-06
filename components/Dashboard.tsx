@@ -38,18 +38,32 @@ export default function Dashboard({
     hero.latest && heroFirst ? fmtDelta(heroFirst.value, hero.latest.value) : null;
 
   return (
-    <div className="page">
-      <header className="masthead">
-        <div>
-          <h1 className="md-typescale-headline-small">Good Country Dashboard</h1>
-          <p className="subtitle md-typescale-body-medium">
-            A public-systems scoreboard from the Country Manifesto: countries
-            compete like companies, and citizens own the upside.
-          </p>
+    <div className="page dashboard-page">
+      <header className="dashboard-masthead">
+        <div className="dashboard-topline">
+          <span className="dashboard-wordmark">Good Country</span>
+          <span className="dashboard-edition md-typescale-label-medium">
+            Public systems scoreboard · 2026
+          </span>
         </div>
+
+        <div className="dashboard-title-block">
+          <p className="dashboard-eyebrow md-typescale-label-medium">
+            Measure what compounds
+          </p>
+          <div>
+            <h1>Countries should grow value for their citizens.</h1>
+            <p className="dashboard-deck md-typescale-body-large">
+              A public-economy scoreboard from the Country Manifesto—tracking
+              market value, broad entrepreneurship, and the conditions that
+              let both endure.
+            </p>
+          </div>
+        </div>
+
         {/* The CTA sits beside md-tabs, never inside it: a non-tab child would
             shift activeTabIndex and break the `selected` math below. */}
-        <div className="tabs-cluster">
+        <div className="dashboard-nav">
           <md-tabs ref={tabsRef} aria-label="Country">
             {countries.map((c, i) => (
               <md-primary-tab key={c.code} active={i === selected}>
@@ -58,82 +72,108 @@ export default function Dashboard({
             ))}
             <md-primary-tab active={showRanking}>World ranking</md-primary-tab>
           </md-tabs>
-          <Link href="/co" className="tab-cta md-typescale-label-large">
-            <md-icon aria-hidden="true">gavel</md-icon>
-            Colombia: laws &amp; votes
-            <md-icon className="tab-cta-arrow" aria-hidden="true">
-              arrow_forward
-            </md-icon>
+          <Link href="/co" className="dashboard-monitor-link">
+            <span>
+              <small>Live country file</small>
+              Colombia · laws &amp; votes
+            </span>
+            <md-icon aria-hidden="true">arrow_forward</md-icon>
           </Link>
         </div>
       </header>
 
-      <main>
+      <main id="main-content">
         {showRanking ? (
           <Ranking entries={ranking} />
         ) : (
-        <section className="grid">
-          <article className="card card--hero">
-            <h2 className="md-typescale-title-medium">
-              Good Country Index — {country.name}
-            </h2>
-            <span className="formula-chip md-typescale-label-medium">
-              (stock-market capitalization × public companies) ÷ population
-            </span>
-
-            {hero.latest ? (
-              <>
-                <p className="metric-value hero-value">
-                  {fmtCompact(hero.latest.value, hero.format)}
-                </p>
-                <div className="metric-meta md-typescale-label-medium">
-                  <span>as of {hero.latest.year}</span>
-                  {heroDelta && heroFirst && (
-                    <span className="delta-chip">
-                      {heroDelta} since {heroFirst.year}
-                    </span>
-                  )}
-                  <span>
-                    A composite score: one giant corporation shouldn&apos;t
-                    define a country&apos;s success — broad entrepreneurship
-                    should.
-                  </span>
+          <>
+            <section
+              className="dashboard-index"
+              aria-labelledby="dashboard-index-heading"
+            >
+              <div className="dashboard-index-stat">
+                <div className="dashboard-index-label">
+                  <p className="md-typescale-label-medium">
+                    Good Country Index
+                  </p>
+                  <span>{country.code}</span>
                 </div>
-                <LineChart points={hero.points} format={hero.format} />
-              </>
-            ) : (
-              <div className="no-data md-typescale-body-medium">
-                Index unavailable — a component series is missing
-              </div>
-            )}
-            {country.code === "COL" && (
-              <Link href="/co" className="cta-banner">
-                <md-icon className="cta-icon" aria-hidden="true">
-                  gavel
-                </md-icon>
-                <span className="cta-text">
-                  <strong className="md-typescale-title-medium">
-                    What is Congress doing about it?
-                  </strong>
-                  <span className="md-typescale-body-medium">
-                    Landmark laws and bills, how parties voted where the record
-                    is published, and what each one does to this index.
-                  </span>
-                </span>
-                <md-icon className="cta-arrow" aria-hidden="true">
-                  arrow_forward
-                </md-icon>
-              </Link>
-            )}
-            <p className="source-line md-typescale-label-small">
-              Source: {hero.source}
-            </p>
-          </article>
+                <h2 id="dashboard-index-heading">{country.name}</h2>
 
-          {country.metrics.map((m) => (
-            <MetricCard key={m.id} series={m} />
-          ))}
-        </section>
+                {hero.latest ? (
+                  <>
+                    <p className="dashboard-index-value">
+                      {fmtCompact(hero.latest.value, hero.format)}
+                    </p>
+                    <div className="dashboard-index-meta md-typescale-label-medium">
+                      <span>Latest comparable value · {hero.latest.year}</span>
+                      {heroDelta && heroFirst && (
+                        <span className="dashboard-delta">
+                          {heroDelta} since {heroFirst.year}
+                        </span>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className="no-data md-typescale-body-medium">
+                    Index unavailable — a component series is missing
+                  </div>
+                )}
+
+                <span className="formula-chip md-typescale-label-medium">
+                  (market cap × public companies) ÷ population
+                </span>
+                <p className="dashboard-index-caption md-typescale-body-medium">
+                  One giant corporation should not define a country&apos;s
+                  success. The score rewards a wider field of companies too.
+                </p>
+              </div>
+
+              <div className="dashboard-index-chart">
+                <header>
+                  <div>
+                    <p className="dashboard-eyebrow md-typescale-label-medium">
+                      Ten-year view
+                    </p>
+                    <h3>Public-economy momentum</h3>
+                  </div>
+                  <p className="md-typescale-label-small">
+                    Source: {hero.source}
+                  </p>
+                </header>
+                {hero.latest && (
+                  <LineChart points={hero.points} format={hero.format} />
+                )}
+                {country.code === "COL" && (
+                  <Link href="/co" className="dashboard-country-file">
+                    <span>
+                      <small>Go behind the score</small>
+                      See what Colombia&apos;s Congress is doing
+                    </span>
+                    <md-icon aria-hidden="true">arrow_forward</md-icon>
+                  </Link>
+                )}
+              </div>
+            </section>
+
+            <section className="dashboard-metrics" aria-labelledby="drivers-heading">
+              <div className="dashboard-section-heading">
+                <p className="dashboard-eyebrow md-typescale-label-medium">
+                  The drivers
+                </p>
+                <h2 id="drivers-heading">What moves the score</h2>
+                <p className="md-typescale-body-medium">
+                  Six underlying series show whether value is broadening,
+                  stalling, or relying on a proxy.
+                </p>
+              </div>
+              <div className="grid metric-grid">
+                {country.metrics.map((m) => (
+                  <MetricCard key={m.id} series={m} />
+                ))}
+              </div>
+            </section>
+          </>
         )}
       </main>
 
