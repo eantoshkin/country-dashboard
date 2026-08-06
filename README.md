@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Good Country Dashboard
 
-## Getting Started
+A public dashboard for the **Country Manifesto (Good Country)** draft. Its
+north-star metric implements the manifesto's §10 thesis — politicians should
+be judged by the growth of the country's public economy:
 
-First, run the development server:
+> **Good Country Index = (total stock-market capitalization × number of
+> public companies) ÷ population**
+
+Live at <https://country-dashboard-omega.vercel.app>.
+
+## What's on it
+
+- **`/`** — Colombia and United States country views (index hero plus six
+  underlying metric series with 10-year charts) and a **World ranking** tab
+  of 39 countries with sparklines and sortable columns.
+- **`/co`** — a Colombia country file: 14 curated laws with per-party records
+  where verified (unverified stances are marked, never guessed), editorial
+  0–100 index-impact scores, and party scorecards. All judgments carry
+  visible model attribution.
+
+## Stack
+
+- [Next.js](https://nextjs.org) (App Router, TypeScript), fully static with
+  daily revalidation — no API keys anywhere.
+- [Material Web](https://material-web.dev) components with Material 3 tokens;
+  Roboto body copy and Newsreader display type.
+- Data from the World Bank API and FRED (keyless CSV); hand-collected
+  supplements are marked with † and sourced in the UI.
+
+## Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run dev    # dev server on :3000
+npm run lint   # ESLint
+npm test       # unit tests (Vitest)
+npm run build  # production build (also type-checks)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Documentation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The real project documentation — data honesty rules, scoring rubric,
+architecture, and session history — lives in
+[`docs/IMPLEMENTATION.md`](docs/IMPLEMENTATION.md). Read it (and the rest of
+`docs/`, which is gitignored as private drafts) before changing anything.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Deploys automatically from `main` to Vercel; single-branch convention.

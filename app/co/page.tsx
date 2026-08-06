@@ -20,6 +20,15 @@ export const metadata: Metadata = {
   title: "Colombia — laws and the Good Country Index",
   description:
     "Landmark laws passed by Colombia's Congress since 2025 and bills now in discussion, with how each party voted and an editorial score for how much each moves the Good Country Index.",
+  alternates: { canonical: "/co" },
+  openGraph: {
+    title: "Colombia — laws and the Good Country Index",
+    description:
+      "14 curated laws with per-party votes where verified, and editorial scores for how much each moves Colombia's Good Country Index.",
+    url: "/co",
+    siteName: "Good Country Dashboard",
+    type: "article",
+  },
 };
 
 /**

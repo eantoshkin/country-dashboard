@@ -51,6 +51,8 @@ export type PartyVote =
   | "for"
   | "against"
   | "abstained"
+  /** Did not attend the vote (e.g. a bench boycott) — distinct from abstaining while present. */
+  | "absent"
   | "split"
   | "unverified";
 

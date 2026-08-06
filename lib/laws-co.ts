@@ -66,13 +66,43 @@ export const COLOMBIA_LAWS: Law[] = [
     status: "passed",
     date: "2025-10-16",
     congress: "2022-2026",
-    chamber: "Senate plenary, after adopting the Chamber text",
-    tally: { for: 50, against: 27 },
+    chamber: "Senate plenary, 16 Oct 2025, after adopting the Chamber text (74–24)",
+    tally: { for: 50, against: 24 },
     parties: [
       {
         party: "All benches",
         vote: "unverified",
-        note: "Party-level records weren't published. The Chamber passed it 74–24; reporting attributes the broad support to the alternative of the government issuing the budget by decree.",
+        note: "No per-party roll call was published (re-checked Aug 2026). Even the aggregate differs: the tally shown is the Senate's own release (50–24), chosen over the 50–27 the press reported — the discrepancy is disclosed rather than hidden. Reporting attributes the broad support to the alternative of the government issuing the budget by decree.",
+      },
+      {
+        party: "Centro Democrático",
+        vote: "unverified",
+        note: "Infobae describes the bench's open resistance at the final vote — but at first debate the opposition had backed the reduced amount precisely to avoid a budget-by-decree, and neither vote's roll call is published.",
+      },
+      {
+        party: "Alianza Verde",
+        vote: "unverified",
+        note: "Infobae reports resistance from \"some sectors\" of the bench; Senator Angélica Lozano publicly called the budget electoral-season pork (\"mermelada\"), but her individual vote is not on record.",
+      },
+      {
+        party: "Partido Liberal",
+        vote: "unverified",
+        note: "Rapporteur John Jairo Roldán authored the winning Senate proposition, and the Pares analysis calls Liberal, Conservador and La U support decisive — an analysis, not a roll call.",
+      },
+      {
+        party: "Partido Conservador",
+        vote: "unverified",
+        note: "Named by the Pares analysis as part of the decisive supporting bloc; no roll call published.",
+      },
+      {
+        party: "Partido de la U",
+        vote: "unverified",
+        note: "Named by the Pares analysis as part of the decisive supporting bloc; no roll call published.",
+      },
+      {
+        party: "Pacto Histórico",
+        vote: "unverified",
+        note: "Governing-coalition rapporteur Aída Avella defended the 546.9-trillion amount on the floor; no roll call published.",
       },
     ],
     score: 40,
@@ -87,6 +117,18 @@ export const COLOMBIA_LAWS: Law[] = [
         label: "Cámara de Representantes — 546.9 trillion pesos approved",
         url: "https://www.camara.gov.co/546-9-billones-de-pesos-fueron-aprobados-para-el-presupuesto-de-2026-en-la-camara-de-representantes/",
       },
+      {
+        label: "Senado — budget approved (official release, 50–24)",
+        url: "https://www.senado.gov.co/index.php/el-senado/noticias/6891-senado-aprobo-presupuesto-general-de-la-nacion-del-2026-por-546-9-billones",
+      },
+      {
+        label: "Infobae — final approval and bench resistance, 16 October 2025",
+        url: "https://www.infobae.com/colombia/2025/10/16/congreso-aprobo-presupuesto-nacional-de-5469-billones-para-2026/",
+      },
+      {
+        label: "Pares — how the 2026 budget got the votes",
+        url: "https://www.pares.com.co/la-paz-blanca-con-la-que-el-gobierno-y-el-congreso-lograron-aprobar-el-presupuesto-general-de-2026/",
+      },
     ],
   },
   {
@@ -98,13 +140,53 @@ export const COLOMBIA_LAWS: Law[] = [
     status: "passed",
     date: "2025-06-28",
     congress: "2022-2026",
-    chamber: "Chamber of Representatives plenary, extra session",
-    tally: { for: 97, against: 0 },
+    chamber: "Chamber of Representatives plenary, extra session, 28 June 2025",
+    tally: { for: 104, against: 9 },
     parties: [
+      {
+        party: "Pacto Histórico",
+        vote: "for",
+        note: "Infobae names the bench among those backing the text; María del Mar Pizarro presented the approved substitutive motion.",
+      },
+      {
+        party: "Alianza Verde",
+        vote: "for",
+        note: "Named by Infobae among the benches backing the text.",
+      },
+      {
+        party: "Partido Liberal",
+        vote: "for",
+        note: "Named by Infobae among the benches backing the text.",
+      },
+      {
+        party: "Partido Conservador",
+        vote: "for",
+        note: "Named by Infobae among the benches backing the text — though Juan Carlos Wills (Conservador) moved to reopen article-by-article debate, rejected 100–11; a procedural motion, not a recorded no.",
+      },
+      {
+        party: "Partido de la U",
+        vote: "for",
+        note: "Named by Infobae among the benches backing the text.",
+      },
+      {
+        party: "Comunes",
+        vote: "for",
+        note: "Named by Infobae among the benches backing the text.",
+      },
+      {
+        party: "Centro Democrático",
+        vote: "absent",
+        note: "Boycotted the session, calling the convocation improvised and procedurally irregular (El Espectador); denounced new irregularities (Infobae).",
+      },
+      {
+        party: "Cambio Radical",
+        vote: "absent",
+        note: "Boycotted the session, saying no formal Constitutional Court notification had been received (El Espectador).",
+      },
       {
         party: "All benches",
         vote: "unverified",
-        note: "Only aggregate counts were published: 104–9 on the substitutive motion, then 97 in favour of adopting the Senate text.",
+        note: "The nominal roll call — who the 9 no votes were — lives in Acta 257's Gaceta text, which is not indexed online; outlets even differ on the aggregates (104–9 vs 104–10; 97–0 vs 97–1). Official Cámara figures shown. Re-checked Aug 2026.",
       },
     ],
     score: 28,
@@ -119,6 +201,10 @@ export const COLOMBIA_LAWS: Law[] = [
       {
         label: "Infobae — pension reform officially law, 29 June 2025",
         url: "https://www.infobae.com/colombia/2025/06/29/reforma-pensional-es-oficialmente-ley-de-la-republica-plenaria-de-la-camara-aprobo-el-texto-en-sesion-extra/",
+      },
+      {
+        label: "El Espectador — Centro Democrático and Cambio Radical announce boycott",
+        url: "https://www.elespectador.com/politica/reforma-pensional-centro-democratico-y-cambio-radical-anuncian-que-no-estaran-en-la-plenaria-de-camara-noticias-hoy/",
       },
     ],
   },

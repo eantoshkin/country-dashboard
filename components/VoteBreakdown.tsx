@@ -5,6 +5,7 @@ const VOTE: Record<PartyVote, { icon: string; label: string }> = {
   for: { icon: "check_circle", label: "For" },
   against: { icon: "cancel", label: "Against" },
   abstained: { icon: "do_not_disturb_on", label: "Abstained" },
+  absent: { icon: "person_off", label: "Did not attend" },
   split: { icon: "change_circle", label: "Split" },
   unverified: { icon: "help", label: "Not verified" },
 };

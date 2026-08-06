@@ -999,6 +999,7 @@ md-linear-progress {
 }
 
 .party-chip.abstained,
+.party-chip.absent,
 .party-chip.unverified {
   color: var(--md-sys-color-on-surface-variant);
   background: var(--md-sys-color-surface-container-high);
@@ -2563,4 +2564,65 @@ footer.colophon {
 
 .editorial-note.caveat md-icon {
   color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Status pages (404 / render error) */
+.status-page {
+  display: grid;
+  min-height: 70vh;
+  align-content: center;
+}
+
+.status-card {
+  max-width: 560px;
+  padding: 40px 0;
+}
+
+.status-card h1 {
+  margin: 14px 0 12px;
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: clamp(34px, 5vw, 48px);
+  font-weight: 500;
+  letter-spacing: -1.2px;
+  line-height: 1.05;
+}
+
+.status-card > p:not(.dashboard-eyebrow) {
+  margin: 0 0 24px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.status-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  align-items: center;
+}
+
+.status-links a {
+  color: var(--md-sys-color-primary);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.status-retry {
+  font: inherit;
+  font-weight: 500;
+  color: var(--md-sys-color-on-primary);
+  background: var(--md-sys-color-primary);
+  border: none;
+  border-radius: 999px;
+  padding: 10px 22px;
+  cursor: pointer;
+}
+
+.status-retry:hover {
+  opacity: 0.9;
+}
+
+.status-retry:focus-visible,
+.status-links a:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 3px;
 }

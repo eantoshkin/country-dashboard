@@ -69,7 +69,8 @@ async function fredMonthly(seriesId: string): Promise<FredObs[]> {
 /* ------------------------------ shaping helpers ------------------------------ */
 
 /** Level series (like M2): the last monthly observation of each year. */
-function lastObsPerYear(rows: FredObs[], scale = 1): YearPoint[] {
+// The shaping helpers below are exported for unit tests only.
+export function lastObsPerYear(rows: FredObs[], scale = 1): YearPoint[] {
   const byYear = new Map<number, FredObs>();
   for (const row of rows) {
     const prev = byYear.get(row.year);
@@ -81,7 +82,7 @@ function lastObsPerYear(rows: FredObs[], scale = 1): YearPoint[] {
 }
 
 /** Flow series (like applications filed): annual sum over complete years only. */
-function sumPerCompleteYear(rows: FredObs[]): YearPoint[] {
+export function sumPerCompleteYear(rows: FredObs[]): YearPoint[] {
   const byYear = new Map<number, { sum: number; months: number }>();
   for (const row of rows) {
     const acc = byYear.get(row.year) ?? { sum: 0, months: 0 };
@@ -95,7 +96,7 @@ function sumPerCompleteYear(rows: FredObs[]): YearPoint[] {
     .sort((a, b) => a.year - b.year);
 }
 
-function joinYears(
+export function joinYears(
   series: YearPoint[][],
   combine: (values: number[]) => number,
 ): YearPoint[] {
@@ -133,6 +134,25 @@ async function safe<T>(promise: Promise<T>, what: string): Promise<T | null> {
   } catch (err) {
     console.error(`[dashboard] ${what} failed:`, err);
     return null;
+  }
+}
+
+/**
+ * The three World Bank series the index itself needs. If any of them failed,
+ * every index figure on the page would render "unavailable" — and with ISR
+ * that empty page would be cached for a day. Throwing instead makes the
+ * revalidation fail, so Next.js keeps serving the last good page until the
+ * next attempt. (Secondary series — FRED, broad money, births — still degrade
+ * per-card via `safe`.) Trade-off: a fresh build with the World Bank down
+ * fails instead of deploying an empty dashboard, which is what we want.
+ */
+function requireCore<T>(core: Array<[T | null, string]>): void {
+  const missing = core.filter(([v]) => v == null).map(([, name]) => name);
+  if (missing.length > 0) {
+    throw new Error(
+      `[dashboard] core series unavailable (${missing.join(", ")}) — ` +
+        "failing this render so the previous good page stays up",
+    );
   }
 }
 
@@ -247,6 +267,11 @@ export async function getRankingData(): Promise<RankingEntry[]> {
     safe(wbMulti("CM.MKT.LDOM.NO", codes), "ranking listed companies"),
     safe(wbMulti("SP.POP.TOTL", codes), "ranking population"),
   ]);
+  requireCore([
+    [marketCap, "ranking market cap"],
+    [listed, "ranking listed companies"],
+    [population, "ranking population"],
+  ]);
 
   const entries = RANKING_COUNTRIES.map(({ code, name }): RankingEntry => {
     let points = joinYears(
@@ -308,6 +333,11 @@ export async function getDashboardData(): Promise<CountryDashboard[]> {
       safe(fredMonthly("M2SL"), "US M2"),
       safe(fredMonthly("BABATOTALSAUS"), "US business applications"),
     ]);
+  requireCore([
+    [marketCap, "market cap"],
+    [listed, "listed companies"],
+    [population, "population"],
+  ]);
 
   const countries: Array<{ code: CountryCode; name: string }> = [
     { code: "COL", name: "Colombia" },

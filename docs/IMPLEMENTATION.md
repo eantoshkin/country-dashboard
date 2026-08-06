@@ -1,6 +1,6 @@
 # Implementation notes
 
-Status of the Good Country Dashboard as of **2026-08-06**.
+Status of the Good Country Dashboard as of **2026-08-06** (evening session).
 
 - **2026-07-30** — initial build; three ranking-data supplement batches covering
   all 39 countries; mobile table fix; color-coded change capsules; sortable
@@ -22,6 +22,115 @@ Status of the Good Country Dashboard as of **2026-08-06**.
   index/chart hero, editorial metric grid, and ranking header. Every 0–100 law
   and party scale now marks 50 explicitly and prints the rule: below 50 lowers
   the index, 50 is neutral, and above 50 improves it.
+- **2026-08-06 (evening)** — audit-driven improvement pass: Next 16.3.0
+  security upgrade, unit tests (Vitest), data-failure resilience, SEO/robots/
+  sitemap/status pages, README rewrite, and a pension-re-vote roll-call
+  deepening that took verified party coverage from 1 to 2 of 14 laws.
+  Details below. A 2× scenario panel was built and then **removed on the
+  owner's instruction — do not rebuild it** (see Ideas section).
+
+## Session summary — 2026-08-06 evening: audit and hardening
+
+A full-codebase audit, then incremental fixes. Index formula, source data,
+law selection, and editorial scores unchanged (`JUDGED_BY` untouched — the
+new pension/budget party data is sourced fact, not model judgment).
+
+### Toolchain and hygiene
+
+- **Next.js 16.2.12 → 16.3.0** (+ `eslint-config-next`), clearing three
+  high-severity advisories in Next's bundled `postcss`/`sharp`; `npm audit
+  fix` also patched `js-yaml`. Zero vulnerabilities after. Lint, build, and a
+  browser pass verified both routes.
+- README rewritten (was untouched create-next-app boilerplate); the five
+  template SVGs in `public/` deleted; package renamed `app` →
+  `country-dashboard`.
+- **No GitHub Actions** — the owner doesn't use it, by choice (2026-08-06).
+  Verification is local: `npm test`, `npm run lint`, `npm run build`.
+
+### Unit tests (Vitest)
+
+`npm test` runs 31 tests in `tests/`: the formatters, the data-shaping
+helpers (`joinYears`, `lastObsPerYear`, `sumPerCompleteYear` — now exported
+from `lib/data.ts` for tests), and — most importantly —
+the scorecard honesty rules as executable policy: unverified/abstained/split/
+absent stances contribute nothing, "All benches" is never a party, filing
+counts as a for-vote, the executive is never a voting party, alignment clamps
+to 0–100, plus `COLOMBIA_LAWS` integrity checks (unique slugs, score range,
+date format, https sources, congress boundary).
+
+### Data-failure resilience
+
+`requireCore()` in `lib/data.ts`: if any of the three index-critical World
+Bank series (market cap, listed companies, population) fails, the render now
+**throws** instead of rendering "data unavailable" — so a daily ISR
+revalidation that hits an outage keeps serving the last good page rather than
+caching an empty one for 24 h. Secondary series (FRED, broad money, births)
+still degrade per-card. Trade-off, accepted: a fresh build with the World
+Bank down fails instead of deploying an empty dashboard.
+
+### SEO and status pages
+
+`lib/site.ts` (canonical origin) + `metadataBase`, Open Graph and Twitter
+metadata on both routes; `app/robots.ts`; `app/sitemap.ts`; styled
+`not-found.tsx` and `error.tsx` (`.status-page` CSS) in the civic-ledger
+look. Verified served: `/robots.txt`, `/sitemap.xml`, the 404 page, and
+`og:*` tags in the HTML.
+
+### Roll-call deepening (pension re-vote, budget)
+
+Two research passes over Colombian primary/press sources, same honesty rules:
+
+- **Pension re-vote (28 Jun 2025)** now has bancada-level stances: Infobae
+  explicitly names Pacto Histórico, Comunes, Alianza Verde, Partido de la U,
+  Liberal and Conservador as backing the text, while Centro Democrático and
+  Cambio Radical **boycotted the session** (El Espectador; both denounced
+  procedural irregularities). That required a new first-class vote value —
+  `absent` ("Did not attend") — because a boycott is neither "against" nor
+  "abstained", and it deliberately contributes nothing to scorecards (scoring
+  it as opposition would be inference). Tally corrected to the official
+  Cámara figures 104–9 (outlets differ: 104–10, 97–0 vs 97–1 — noted in the
+  UI). The named 9 "no" votes exist only in Acta 257's Gaceta text
+  (referenced via Gaceta 1676/2025 approval record), which is not indexed
+  online — the next deepening step if wanted.
+- **2026 budget**: re-verified that **no per-party roll call exists** in any
+  press or official source — kept unverified, but the party chips now carry
+  sourced notes (Centro Democrático's open resistance per Infobae; Liberal/
+  Conservador/La U support called decisive by the Pares analysis; rapporteurs
+  named) and the aggregate discrepancy is disclosed: the Senate's own release
+  says 50–24 where the press reported 50–27.
+- Net effect: `lawsWithPartyVotes` is now **2 of 14** (auto-updates in the
+  caveat), and the bench scorecards went from 4 to 8 cards — Centro
+  Democrático 70 (unchanged; a boycott scores nothing), Pacto Histórico 40,
+  Government (Petro) 35, Alianza Verde / Conservador / La U / Comunes 28
+  (each on the single pension for-vote, score 28), Liberal 27. Only Cambio
+  Radical still holds seats with nothing scoreable. These inherit the
+  editorial law scores wholesale, as before.
+
+### MANUAL_LATEST freshness check
+
+Reviewed, deliberately **not** refreshed: the figures were hand-collected
+2026-07-30 (one week before this session) from sources dated Dec 2025 – Jun
+2026, comfortably within the ≤5-year policy and mostly within months. Next
+worthwhile refresh: when FIAB publishes new monthly PDFs meaningfully ahead
+of these vintages, or after the World Bank's next series update.
+
+### Post-review fixes (same session)
+
+A review pass over the day's changes produced six follow-up fixes:
+
+- Honest wording where copy implied all 14 laws have per-party votes: README
+  and the `/co` Open Graph description now say "per-party votes/records
+  **where verified**".
+- Canonical URLs: `alternates.canonical` — `/` in the root layout, `/co` on
+  the Colombia page (`metadataBase` and Open Graph unchanged).
+- The 2026 budget tally now shows the Senate's **official 50–24** rather
+  than the press-reported 50–27; the "All benches" note states that choice
+  and keeps the discrepancy disclosed.
+- Stale "1 of 14" coverage statements in this file updated to 2 of 14
+  (bench-scorecards section and the Ideas backlog).
+- Tests extended for the new `absent` value: non-scoreable in scorecards,
+  not a party vote in `lawsWithPartyVotes`, and an absent-only party counts
+  as having no record (now 31 tests).
 
 ## End-of-day session summary — 2026-08-06
 
@@ -269,12 +378,12 @@ no seat and cast no vote — currently `Government (Petro)`. Those get
 casts no vote"), and their summary describes an agenda ("What it has filed
 here…") rather than a voting record. Add any future non-party sponsor to that set.
 
-**Only 1 of 14** laws has a published per-party roll call, so three parties
-qualify on votes and the rest of the section is bill sponsorship. The section
-says this in its own caveat panel and names the parties holding seats with
-nothing scoreable (Alianza Verde, Cambio Radical, Partido Conservador, Partido
-de la U). `lawsWithPartyVotes()` computes the ratio so the caveat can never
-drift from the data. **Deepening this means transcribing roll calls out of
+**Only 2 of 14** laws have a published per-party record (labor reform, and
+the pension re-vote as of the 2026-08-06 evening session), so most of the
+section is still bill sponsorship. The section says this in its own caveat
+panel and names the parties holding seats with nothing scoreable (now only
+Cambio Radical). `lawsWithPartyVotes()` computes the ratio so the caveat can
+never drift from the data. **Deepening this means transcribing roll calls out of
 Gaceta PDFs by hand, one law at a time** — that is the task if real party
 coverage is wanted.
 
@@ -383,15 +492,16 @@ codebase — and check the served HTML, not just the source.
 
 ## Ideas / not yet implemented
 
-- The manifesto's closing note: model how Colombia's index would grow
+- ~~The manifesto's closing note: model how Colombia's index would grow
   under the proposed system (2× economy scenario) and show its ranking
-  neighbors before/after.
+  neighbors before/after.~~ **Rejected 2026-08-06: built, then removed on
+  the owner's instruction ("we will never have it"). Do not rebuild.**
 - Language toggle (manifesto is in Russian; site is English-only — confirmed
   as the intent on 2026-08-06, so this is optional rather than a gap).
 - Alternative index weightings (e.g. log of company count) for
   comparison while the formula is still a draft.
 - Deepen `/co` party coverage by transcribing roll calls from Gaceta del
-  Congreso PDFs — currently only 1 of 14 laws has a per-party record, which is
+  Congreso PDFs — currently 2 of 14 laws have a per-party record, which is
   what keeps the bench scorecards thin.
 - Extend the laws treatment to a second country (`/us`), and convert the
   homepage tabs into real routes if that happens.

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Newsreader, Roboto } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -22,9 +23,22 @@ const MATERIAL_SYMBOLS_HREF =
   "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=block";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Good Country Dashboard",
   description:
     "A public-systems scoreboard based on the Country Manifesto: (stock-market capitalization × public companies) ÷ population, plus the metrics behind it.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "Good Country Dashboard",
+    description:
+      "A public-systems scoreboard: (stock-market capitalization × public companies) ÷ population — Colombia, the United States, and a 39-country world ranking.",
+    url: "/",
+    siteName: "Good Country Dashboard",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export const viewport: Viewport = {
