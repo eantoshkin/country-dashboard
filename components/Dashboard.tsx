@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import LineChart from "./LineChart";
 import MetricCard from "./MetricCard";
 import Ranking from "./Ranking";
@@ -46,14 +47,25 @@ export default function Dashboard({
             compete like companies, and citizens own the upside.
           </p>
         </div>
-        <md-tabs ref={tabsRef} aria-label="Country">
-          {countries.map((c, i) => (
-            <md-primary-tab key={c.code} active={i === selected}>
-              {c.name}
-            </md-primary-tab>
-          ))}
-          <md-primary-tab active={showRanking}>World ranking</md-primary-tab>
-        </md-tabs>
+        {/* The CTA sits beside md-tabs, never inside it: a non-tab child would
+            shift activeTabIndex and break the `selected` math below. */}
+        <div className="tabs-cluster">
+          <md-tabs ref={tabsRef} aria-label="Country">
+            {countries.map((c, i) => (
+              <md-primary-tab key={c.code} active={i === selected}>
+                {c.name}
+              </md-primary-tab>
+            ))}
+            <md-primary-tab active={showRanking}>World ranking</md-primary-tab>
+          </md-tabs>
+          <Link href="/co" className="tab-cta md-typescale-label-large">
+            <md-icon aria-hidden="true">gavel</md-icon>
+            Colombia: laws &amp; votes
+            <md-icon className="tab-cta-arrow" aria-hidden="true">
+              arrow_forward
+            </md-icon>
+          </Link>
+        </div>
       </header>
 
       <main>
@@ -93,6 +105,25 @@ export default function Dashboard({
               <div className="no-data md-typescale-body-medium">
                 Index unavailable — a component series is missing
               </div>
+            )}
+            {country.code === "COL" && (
+              <Link href="/co" className="cta-banner">
+                <md-icon className="cta-icon" aria-hidden="true">
+                  gavel
+                </md-icon>
+                <span className="cta-text">
+                  <strong className="md-typescale-title-medium">
+                    What is Congress doing about it?
+                  </strong>
+                  <span className="md-typescale-body-medium">
+                    Landmark laws and bills, how parties voted where the record
+                    is published, and what each one does to this index.
+                  </span>
+                </span>
+                <md-icon className="cta-arrow" aria-hidden="true">
+                  arrow_forward
+                </md-icon>
+              </Link>
             )}
             <p className="source-line md-typescale-label-small">
               Source: {hero.source}

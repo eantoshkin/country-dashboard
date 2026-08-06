@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Sparkline from "./Sparkline";
 import { fmtCompact, fmtDelta } from "@/lib/format";
 import type { RankingEntry } from "@/lib/types";
@@ -185,7 +186,15 @@ function RankingRow({
       ].join(" ")}
     >
       <td className="num rank-num">{rank ?? "—"}</td>
-      <td>{entry.name}</td>
+      <td>
+        {entry.code === "COL" ? (
+          <Link className="row-link" href="/co">
+            {entry.name}
+          </Link>
+        ) : (
+          entry.name
+        )}
+      </td>
       <td className="spark-cell col-spark">
         <Sparkline points={entry.points} format="index" showRange />
       </td>

@@ -1,10 +1,17 @@
 # Implementation notes
 
-Status of the Good Country Dashboard as of 2026-07-30 (initial build session;
-updated same day: three ranking-data supplement batches covering all 39
-countries, mobile table fix, color-coded change capsules, sortable Index /
-Change columns, per-row sparkline year ranges, and review fixes — dark-mode
-contrast, population vintage).
+Status of the Good Country Dashboard as of **2026-08-06**.
+
+- **2026-07-30** — initial build; three ranking-data supplement batches covering
+  all 39 countries; mobile table fix; color-coded change capsules; sortable
+  Index / Change columns; per-row sparkline year ranges; review fixes
+  (dark-mode contrast, population vintage).
+- **2026-08-06** — new `/co` Colombia page: 14 curated laws with per-party
+  votes, editorial index-impact scores, and bench scorecards. Material Web
+  redesign (icons, score meters, dividers). Vercel Analytics and Speed
+  Insights. Model attribution on every judgment. Scoring rubric revised after
+  review to weigh company count and to reject the population denominator's
+  perverse incentive.
 
 ## What this is
 
@@ -105,6 +112,171 @@ without horizontal scrolling.
   American exchanges in one place.
 - Failed fetches degrade to explicit "data unavailable" states.
 
+### Colombia country page (`/co`) — session of 2026-08-06
+
+A second route answering the question the index can't: who is doing something
+about it. **14 curated laws — 7 passed since 2025, 7 before the new Congress —**
+each with how the parties voted, an editorial 0–100 score for how much it moves
+the Good Country Index, and per-law sources. English only, like the rest of the
+site; the only Spanish retained is identifiers (law numbers, party names,
+chamber names), because translating those would make the laws unsearchable
+against their sources.
+
+#### Why the data is hand-written
+
+Per-legislator vote data for Colombia's Congress is not machine-readable
+anywhere. Checked this session, so it needn't be re-researched:
+
+- `datos.gov.co`'s Senate bill dataset (`feim-cysj`) has title, author, date,
+  committee and status — and **no vote or party fields at all**.
+- Congreso Visible (Uniandes) publishes aggregate tallies only; its
+  `apicongresovisible` subdomain is an unconfigured Laravel default page, not
+  an API.
+- The roll call itself exists only in **Gaceta del Congreso PDFs**.
+
+So `lib/laws-co.ts` is curated by hand with per-law sources, the same policy as
+`MANUAL_LATEST`. **It does not auto-refresh — revisit each legislature.**
+Party positions for major votes are obtainable from Colombian press (Infobae,
+El Colombiano, senado.gov.co, camara.gov.co) with real digging. Warning when
+researching: results are heavily polluted by **Argentina's** own labour and
+pension reforms — always confirm the country.
+
+#### Honesty rules applied here
+
+- **A party's stance is never inferred.** Where the roll call wasn't
+  verifiable, the party renders as *Not verified* with the tally alone. Ten of
+  the thirteen party chips read that way, which is the honest consequence.
+- Named members appear only where their individual vote is on the record.
+  `brokeRanks` marks anyone who voted against their own party's line — the
+  mechanism exists but **no verified instance is in the data yet**, because no
+  documented party-line break turned up in the sources consulted.
+- Coverage is disclosed: Congress passed ~114 laws in 2025 (about a third
+  ceremonial), and the page carries 14 curated entries, not the full record.
+- Failed selection is visible too: parties holding seats with nothing scoreable
+  are named as unscored rather than given a default.
+
+#### Congress boundary
+
+Legislative elections were 8 March 2026 and the new Congress seated 20 July
+2026, so passed laws belong to the 2022–2026 Congress while bills in discussion
+belong to 2026–2030, whose party arithmetic differs. Every entry carries its
+`congress` period so the two are never conflated.
+
+#### Scoring rubric
+
+The first pass scored almost everything through the market-capitalisation
+channel alone. After review the rubric names all three parts of the formula
+explicitly, and the page says so:
+
+1. **Market capitalisation** — what listed firms are worth.
+2. **Number of public companies** — which grows *from the bottom*: startups and
+   small businesses finding investors and eventually listing. A law that only
+   lifts the value of existing firms scores lower than one that widens the
+   pipeline of new ones. Hence microcredit/seed capital is the highest item on
+   the page (70 → 78), mining formalization 65 → 72, and the cancer
+   right-to-be-forgotten law 50 → 62 — restoring credit access puts people back
+   in the founder pipeline.
+3. **Population** — with an explicit anti-perverse-incentive rule. Dividing by
+   population means a shrinking country scores better arithmetically.
+   **Nothing is scored that way.** A healthy working population grows the
+   numerator faster than the denominator, so laws that keep people alive, well
+   and economically active score as *raising* the index, and no law is ever
+   credited for producing fewer people. The page states this in its own panel.
+   Healthcare is represented by Ley 2518 de 2025 (mental health, 60) and the
+   health reform filed 21 July 2026 (45); the right-to-food amendment rose
+   45 → 55 on the same human-capital reasoning.
+
+#### Attribution
+
+Every judgment on the page is signed. `JUDGED_BY` in `lib/laws-co.ts` is the
+single source (model name, model id, vendor, date), rendered in three places: a
+dashed panel in the hero naming `Claude Opus 5` / `claude-opus-5` / Anthropic
+and the date, a one-line byline under each of the 14 law scores, and a byline on
+the bench scorecards. It also states that a different model — or the same one on
+another day — would score some of these differently, and that nothing was
+reviewed or endorsed by the people and parties named. The **curation** is
+attributed too, not just the scores: choosing 14 of ~114 laws was itself a
+judgment. Update `JUDGED_BY` whenever the scores are re-made and the whole page
+follows.
+
+#### Bench scorecards, and why they're thin
+
+`partyScorecards()` derives a per-bench record from the page's own data: backing
+something scored above 50 counts for a bench, below 50 against, opposing is the
+mirror, and filing a bill counts the same as voting for it. Unverified stances
+contribute nothing. These inherit the editorial scores wholesale — a summary of
+a judgment, not an independent measurement — so each card prints its basis
+("1 verified vote · 3 bills filed"). As of this session: Centro Democrático 70,
+Pacto Histórico 44, Government (Petro) 35, Partido Liberal 25.
+
+**The executive is not a party.** `NON_VOTING_SPONSORS` marks sponsors that hold
+no seat and cast no vote — currently `Government (Petro)`. Those get
+`isExecutive: true`, render in their own group ("Files bills · holds no seat ·
+casts no vote"), and their summary describes an agenda ("What it has filed
+here…") rather than a voting record. Add any future non-party sponsor to that set.
+
+**Only 1 of 14** laws has a published per-party roll call, so three parties
+qualify on votes and the rest of the section is bill sponsorship. The section
+says this in its own caveat panel and names the parties holding seats with
+nothing scoreable (Alianza Verde, Cambio Radical, Partido Conservador, Partido
+de la U). `lawsWithPartyVotes()` computes the ratio so the caveat can never
+drift from the data. **Deepening this means transcribing roll calls out of
+Gaceta PDFs by hand, one law at a time** — that is the task if real party
+coverage is wanted.
+
+#### Material Web
+
+Following the quick-start guide, `components/material.ts` registers button,
+icon, divider, linear-progress and elevation alongside tabs. `/co` is a Server
+Component, so `components/MaterialLoader.tsx` performs the client-side
+registration import; the md-* tags stream as unknown elements and upgrade in
+place. `md-icon` and `md-divider` also get plain CSS defaults in `globals.css`
+so they look right before that upgrade — without it, md-icon flashes its
+ligature name ("check_circle") as literal text. Icons come from Material Symbols
+Outlined via a `<link>`, because **next/font/google does not carry that family**
+(`Material_Symbols_Outlined` fails with "Unknown font"). Scores render as
+`md-linear-progress` meters rather than flat badges.
+
+#### Ordering and entry points
+
+*In discussion* comes before *Passed* — what Congress is about to do matters
+more than what it already did. Within each, laws sort newest first; a year-only
+date sorts to the end of its own year, since where it falls within the year
+isn't known.
+
+Three routes into `/co`: a filled pill beside the tab strip (always visible, on
+every tab), a banner inside the Colombia hero card, and Colombia's name in the
+world-ranking table. The pill sits **beside** `md-tabs`, never inside it — a
+non-tab child shifts `activeTabIndex` and breaks the
+`selected >= countries.length` math that decides which panel renders.
+
+Section anchors `#parties`, `#in-discussion` and `#passed` allow deep links.
+
+#### Analytics
+
+`@vercel/analytics` and `@vercel/speed-insights` are mounted in the root layout.
+Both are **no-ops in local dev** — they only report once deployed to Vercel.
+
+#### Contrast
+
+The score bands needed their own tokens (`--score-pos`, `--score-neg`) because
+the /co marks sit on lighter backdrops than the delta capsules were validated
+against: the tinted pill over `.card`, and the score block on
+surface-container-high. Measured on the real rendered DOM, `#0ca30c` fell to
+4.18:1 and `#e66767` to 4.44:1 in dark, and `#d03b3b` to 3.80:1 in light. The
+page now measures **≥4.92:1 in dark and ≥5.17:1 in light**, using
+`#17b317`/`#ea7373` (dark) and `#006300`/`#b3261e`, the Material 3 error colour
+(light). As elsewhere, colour never carries meaning alone — every chip prints an
+icon and a word, every score prints its number.
+
+#### Gotcha: JSX whitespace
+
+Bit this session four separate times. `<strong>Word.</strong> Text` and
+`{expr} word` can render glued together ("Coverage.Congress", "Claude Opus
+5assigned", "14laws", "hasa published") even though the source has a real space.
+**Use the explicit `{" "}` idiom** — already the convention elsewhere in this
+codebase — and check the served HTML, not just the source.
+
 ## Architecture
 
 - **Next.js 16** (App Router, TypeScript, Turbopack). The page is fully
@@ -143,6 +315,12 @@ without horizontal scrolling.
 - The manifesto's closing note: model how Colombia's index would grow
   under the proposed system (2× economy scenario) and show its ranking
   neighbors before/after.
-- Language toggle (manifesto is in Russian; site is English-only).
+- Language toggle (manifesto is in Russian; site is English-only — confirmed
+  as the intent on 2026-08-06, so this is optional rather than a gap).
 - Alternative index weightings (e.g. log of company count) for
   comparison while the formula is still a draft.
+- Deepen `/co` party coverage by transcribing roll calls from Gaceta del
+  Congreso PDFs — currently only 1 of 14 laws has a per-party record, which is
+  what keeps the bench scorecards thin.
+- Extend the laws treatment to a second country (`/us`), and convert the
+  homepage tabs into real routes if that happens.

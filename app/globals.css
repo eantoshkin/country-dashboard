@@ -25,6 +25,12 @@
   --delta-pos-bg: rgba(12, 163, 12, 0.12);
   --delta-neg: #d03b3b;
   --delta-neg-bg: rgba(208, 59, 59, 0.1);
+  /* Score bands (/co). Their own tokens because they sit on the tinted pill
+     over .card, a lighter backdrop than the delta capsules were measured
+     against: #d03b3b lands at 3.80:1 there, under the 4.5:1 small-text bar.
+     #b3261e — the Material 3 error colour — measures 5.17:1. */
+  --score-pos: var(--delta-pos);
+  --score-neg: #b3261e;
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
 }
 
@@ -55,6 +61,14 @@
        below the 4.5:1 small-text bar; #e66767 measures 4.51:1. */
     --delta-neg: #e66767;
     --delta-neg-bg: rgba(208, 59, 59, 0.18);
+    /* The /co marks sit on lighter backdrops than the delta capsules were
+       measured against — the tinted pill over .card, and the score block on
+       surface-container-high (#2b2930) — so both need their own step:
+       #0ca30c falls to 4.18:1 and #e66767 to 4.44:1 there, under the 4.5:1
+       small-text bar. #17b317 measures 5.01:1; #ea7373 measures 4.92:1 on the
+       score block and 4.99:1 on the pill. */
+    --score-pos: #17b317;
+    --score-neg: #ea7373;
   }
 }
 
@@ -465,4 +479,724 @@ footer.colophon {
   color: var(--md-sys-color-on-surface-variant);
   border-top: 1px solid var(--md-sys-color-outline-variant);
   padding-top: 16px;
+}
+
+/* Typescale steps the /co page adds. */
+.md-typescale-headline-medium {
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 400;
+}
+.md-typescale-title-large {
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 400;
+}
+.md-typescale-body-large {
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.5px;
+}
+.md-typescale-label-large {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+}
+
+/* ---------------------------------------------------------------------------
+   Material Web element defaults
+   md-icon and md-divider are styled here as well as by their components, so
+   they look right in the server-rendered HTML before custom elements upgrade —
+   otherwise md-icon flashes its ligature name as literal text.
+   --------------------------------------------------------------------------- */
+
+md-icon {
+  font-family: "Material Symbols Outlined";
+  font-weight: 400;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  flex: none;
+}
+
+md-divider {
+  display: block;
+  height: 1px;
+  background: var(--md-sys-color-outline-variant);
+  border: none;
+  margin: 4px 0;
+}
+
+md-linear-progress {
+  display: block;
+  --md-linear-progress-track-height: 6px;
+  --md-linear-progress-active-indicator-height: 6px;
+  --md-linear-progress-track-shape: 3px;
+}
+
+/* ---------------------------------------------------------------------------
+   Entrance CTA (dashboard → /co)
+   --------------------------------------------------------------------------- */
+
+.cta-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  text-decoration: none;
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  border: 1px solid transparent;
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.cta-banner:hover {
+  box-shadow: var(--shadow-1);
+  transform: translateY(-1px);
+}
+
+.cta-banner:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.cta-icon {
+  font-size: 32px;
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.cta-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cta-arrow {
+  margin-left: auto;
+  font-size: 24px;
+}
+
+.row-link {
+  color: var(--md-sys-color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.row-link:hover {
+  text-decoration: underline;
+}
+
+/* ---------------------------------------------------------------------------
+   Colombia laws page (/co)
+   Reuses the Material 3 tokens above; --score-pos/--score-neg carry the bands.
+   Direction never rides on colour alone — every chip prints an icon and a word,
+   every score prints its number.
+   --------------------------------------------------------------------------- */
+
+.co-masthead {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 8px 16px 8px 12px;
+  border-radius: 20px;
+  text-decoration: none;
+  color: var(--md-sys-color-primary);
+  border: 1px solid var(--md-sys-color-outline);
+}
+
+.back-btn:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.back-btn:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.back-btn md-icon {
+  font-size: 18px;
+}
+
+.co-masthead .subtitle {
+  max-width: 62ch;
+}
+
+/* Hero: the figure and the caveats side by side, stacked on narrow screens. */
+.co-hero {
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.co-hero-figure {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.co-hero-label {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.co-hero-year {
+  margin: 0 0 10px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.co-hero-figure .formula-chip {
+  align-self: flex-start;
+}
+
+.co-hero-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* The one block on the site that is opinion rather than measurement. */
+.editorial-note {
+  display: flex;
+  gap: 12px;
+  margin: 0;
+  padding: 14px 16px;
+  border-left: 4px solid var(--md-sys-color-primary);
+  border-radius: 0 10px 10px 0;
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+}
+
+.editorial-note md-icon {
+  color: var(--md-sys-color-primary);
+  font-size: 22px;
+  margin-top: 1px;
+}
+
+/* Sections */
+.laws-section {
+  margin-top: 40px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.section-heading md-icon {
+  color: var(--md-sys-color-primary);
+  font-size: 24px;
+}
+
+.section-count {
+  margin-left: auto;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.section-intro {
+  margin: 12px 0 0;
+  color: var(--md-sys-color-on-surface-variant);
+  max-width: 78ch;
+}
+
+/* Party scorecards */
+.party-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.party-card {
+  gap: 8px;
+  padding-bottom: 18px;
+  border-left: 4px solid var(--md-sys-color-outline-variant);
+}
+
+.party-card.band-good {
+  border-left-color: var(--score-pos);
+}
+
+.party-card.band-poor {
+  border-left-color: var(--score-neg);
+}
+
+.party-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.party-basis {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.party-basis md-icon {
+  font-size: 16px;
+}
+
+.party-summary {
+  margin: 0;
+  color: var(--md-sys-color-on-surface);
+}
+
+/* Law card */
+.law-card {
+  gap: 10px;
+  border-left: 4px solid var(--md-sys-color-outline-variant);
+}
+
+.law-card.band-good {
+  border-left-color: var(--score-pos);
+}
+
+.law-card.band-poor {
+  border-left-color: var(--score-neg);
+}
+
+.law-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.law-title {
+  min-width: 0;
+}
+
+.law-number {
+  margin: 0 0 2px;
+  color: var(--md-sys-color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.law-ids {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin: 4px 0 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.law-ids .dot {
+  opacity: 0.6;
+}
+
+.law-summary {
+  margin: 0;
+}
+
+/* Score block — the visual anchor of each card. */
+.score-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.score-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.score-icon {
+  font-size: 20px;
+}
+
+.score-label {
+  min-width: 0;
+}
+
+.score-num {
+  margin-left: auto;
+  font-size: 26px;
+  line-height: 28px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.score-scale {
+  font-size: 12px;
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.score-block.good .score-icon,
+.score-block.good .score-label,
+.score-block.good .score-num,
+.score-num.good {
+  color: var(--score-pos);
+}
+
+.score-block.poor .score-icon,
+.score-block.poor .score-label,
+.score-block.poor .score-num,
+.score-num.poor {
+  color: var(--score-neg);
+}
+
+.score-block.mixed .score-icon,
+.score-block.mixed .score-label,
+.score-block.mixed .score-num,
+.score-num.mixed {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.score-block.good .score-meter,
+.party-card.band-good .score-meter {
+  --md-linear-progress-active-indicator-color: var(--score-pos);
+}
+
+.score-block.poor .score-meter,
+.party-card.band-poor .score-meter {
+  --md-linear-progress-active-indicator-color: var(--score-neg);
+}
+
+.score-block.mixed .score-meter,
+.party-card.band-mixed .score-meter {
+  --md-linear-progress-active-indicator-color: var(
+    --md-sys-color-on-surface-variant
+  );
+}
+
+.score-meter {
+  --md-linear-progress-track-color: var(--md-sys-color-outline-variant);
+}
+
+.score-reason {
+  margin: 0;
+  color: var(--md-sys-color-on-surface);
+}
+
+.score-reason em {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.law-tally {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
+
+.tally-where {
+  font-weight: 400;
+}
+
+/* Vote breakdown */
+.vote-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vote-empty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.vote-empty md-icon {
+  font-size: 16px;
+}
+
+.party-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.party-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.party-name {
+  font-weight: 500;
+}
+
+.party-chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 8px;
+  padding: 3px 10px 3px 7px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  border: 1px solid transparent;
+}
+
+.party-chip md-icon {
+  font-size: 15px;
+}
+
+.party-chip.for {
+  color: var(--score-pos);
+  background: var(--delta-pos-bg);
+  border-color: var(--score-pos);
+}
+
+.party-chip.against {
+  color: var(--score-neg);
+  background: var(--delta-neg-bg);
+  border-color: var(--score-neg);
+}
+
+.party-chip.split {
+  color: var(--md-sys-color-on-primary-container);
+  background: var(--md-sys-color-primary-container);
+  border-color: var(--md-sys-color-primary);
+}
+
+.party-chip.abstained,
+.party-chip.unverified {
+  color: var(--md-sys-color-on-surface-variant);
+  background: var(--md-sys-color-surface-container-high);
+  border-color: var(--md-sys-color-outline);
+}
+
+.member-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 12px;
+  border-left: 2px solid var(--md-sys-color-outline-variant);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Someone who voted against their own party's line — the interesting case. */
+.member.broke {
+  color: var(--md-sys-color-on-surface);
+  font-weight: 500;
+}
+
+.broke-tag {
+  color: var(--md-sys-color-primary);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.party-note {
+  margin: 0;
+  padding-left: 12px;
+  color: var(--md-sys-color-on-surface-variant);
+  font-style: italic;
+}
+
+.law-card .source-line a,
+.co-hero a {
+  color: var(--md-sys-color-primary);
+  text-decoration: none;
+}
+
+.law-card .source-line a:hover,
+.co-hero a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 840px) {
+  .co-hero {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  .cta-banner {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .cta-icon {
+    font-size: 26px;
+  }
+
+  .score-num {
+    font-size: 22px;
+  }
+
+  .section-count {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+}
+
+/* Tab-bar CTA — the always-visible route into /co, beside the tab strip. */
+.tabs-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.tab-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px 10px 16px;
+  border-radius: 20px;
+  text-decoration: none;
+  white-space: nowrap;
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  box-shadow: var(--shadow-1);
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.tab-cta:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    0 2px 6px 2px rgba(0, 0, 0, 0.15);
+}
+
+.tab-cta:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 3px;
+}
+
+.tab-cta md-icon {
+  font-size: 20px;
+}
+
+.tab-cta-arrow {
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+@media (max-width: 640px) {
+  .tabs-cluster {
+    width: 100%;
+  }
+
+  .tab-cta {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Model attribution — shown wherever a judgment rather than a measurement is
+   on screen, so the reader always knows whose opinion they are reading. */
+.judged-by {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px dashed var(--md-sys-color-outline);
+  background: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.judged-by md-icon {
+  font-size: 18px;
+  margin-top: 1px;
+}
+
+.judged-by code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.92em;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.score-by {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  font-style: italic;
+}
+
+.score-by md-icon {
+  font-size: 14px;
+  margin-top: 1px;
+}
+
+/* Caveat variant of the editorial note — the population-denominator warning,
+   distinguished from the scoring explanation it sits beneath. */
+.editorial-note.caveat {
+  border-left-color: var(--md-sys-color-outline);
+  background: var(--md-sys-color-surface-container);
+}
+
+.editorial-note.caveat md-icon {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Sub-groups inside the bench section — parties vs the executive, which files
+   bills but cannot vote and must not read as just another party. */
+.group-heading {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 24px 0 0;
+  color: var(--md-sys-color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 13px;
+}
+
+.group-note {
+  color: var(--md-sys-color-on-surface-variant);
+  text-transform: none;
+  letter-spacing: 0.4px;
+  font-style: italic;
+}
+
+.editorial-note.caveat md-icon {
+  color: var(--md-sys-color-on-surface-variant);
 }
