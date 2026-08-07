@@ -1,6 +1,21 @@
 import type { Law } from "./types";
 
 /**
+ * Attribution for the declined-bill entries and their scores, added in the
+ * session of 2026-08-07 by a different model than the rest of the page (see
+ * JUDGED_BY at the bottom). Defined before COLOMBIA_LAWS because the entries
+ * reference it. Two attributions exist on purpose: crediting these scores to
+ * the earlier model would be false attribution.
+ */
+export const JUDGED_BY_FABLE = {
+  model: "Claude Fable 5",
+  modelId: "claude-fable-5",
+  vendor: "Anthropic",
+  date: "2026-08-07",
+  dateLabel: "7 August 2026",
+} as const;
+
+/**
  * Colombian legislation, hand-curated (session of 2026-08-06).
  *
  * WHY THIS IS HAND-WRITTEN: per-legislator vote data for Colombia's Congress
@@ -524,6 +539,257 @@ export const COLOMBIA_LAWS: Law[] = [
       },
     ],
   },
+
+  /* ------------------------ declined (2022-2026) ------------------------
+   * Bills that died: archived in committee, expired unscheduled, or
+   * withdrawn. Researched and scored 2026-08-07 (judgedBy on each entry —
+   * a different model than the rest of the page, and the attribution must
+   * never drift from who actually judged). In Colombia most bills die by
+   * archiving rather than a floor "no", so several entries have no tally:
+   * that is the honest record, not a gap. */
+  {
+    slug: "health-reform-first-attempt",
+    lawNumber: "PL 339/2023C · 216/2024S",
+    title: "Health reform (first attempt)",
+    summary:
+      "The government's structural health overhaul: phase out the EPS insurers as intermediaries in favor of state-run primary-care centres (CAPS) and direct public payment through ADRES. It passed the full Chamber in December 2023, then the Senate's Seventh Committee archived it citing missing fiscal backing.",
+    status: "declined",
+    date: "2024-04-03",
+    congress: "2022-2026",
+    sponsor: "Government (Petro) — Ministry of Health",
+    sponsorParty: "Government (Petro)",
+    chamber: "Senate Seventh Committee — 9–5 vote to archive",
+    tally: { for: 5, against: 9 },
+    parties: [
+      {
+        party: "Centro Democrático",
+        vote: "against",
+        members: [
+          { name: "Honorio Henríquez", vote: "against" },
+          { name: "Alirio Barrera", vote: "against" },
+        ],
+        note: "Voted to archive in committee.",
+      },
+      {
+        party: "Partido Conservador",
+        vote: "against",
+        members: [
+          { name: "Nadia Blel", vote: "against" },
+          { name: "José Alfredo Marín", vote: "against" },
+        ],
+        note: "Voted to archive in committee.",
+      },
+      {
+        party: "Partido Liberal",
+        vote: "against",
+        members: [{ name: "Miguel Ángel Pinto", vote: "against" }],
+        note: "Voted to archive in committee.",
+      },
+      {
+        party: "Partido de la U",
+        vote: "against",
+        members: [{ name: "Norma Hurtado", vote: "against" }],
+        note: "Voted to archive in committee.",
+      },
+      {
+        party: "MIRA",
+        vote: "against",
+        members: [{ name: "Ana Paola Agudelo", vote: "against" }],
+        note: "Voted to archive in committee.",
+      },
+      {
+        party: "Colombia Justa Libres",
+        vote: "against",
+        members: [{ name: "Lorena Ríos", vote: "against" }],
+        note: "Voted to archive in committee.",
+      },
+      {
+        party: "ASI",
+        vote: "against",
+        members: [{ name: "Berenice Bedoya", vote: "against" }],
+        note: "Voted to archive in committee.",
+      },
+      {
+        party: "Pacto Histórico",
+        vote: "for",
+        note: "Committee minority against archiving; Wilson Arias led the defense of the bill.",
+      },
+    ],
+    score: 40,
+    scoreReason:
+      "Universal primary care protects the working population — the people lever — but dismantling the EPS layer without a proven replacement payment system risks years of transition disruption for every firm and worker that depends on a functioning health market; the committee archived it precisely over unfunded sustainability.",
+    judgedBy: JUDGED_BY_FABLE,
+    sources: [
+      {
+        label: "Senado — health reform archived in Seventh Committee",
+        url: "https://www.senado.gov.co/index.php/el-senado/noticias/7062-proyecto-de-reforma-de-la-salud-fue-archivado-en-comision-septima-de-senado",
+      },
+      {
+        label: "Infobae — the 9–5 archive vote, 3 April 2024",
+        url: "https://www.infobae.com/colombia/2024/04/03/reforma-a-la-salud-se-hundio-en-la-comision-septima-del-senado-gustavo-petro-sufrio-otra-dura-derrota-en-el-congreso/",
+      },
+      {
+        label: "Vanguardia — named committee votes to archive",
+        url: "https://www.vanguardia.com/politica/2024/04/03/ultima-hora-con-9-votos-contra-5-fue-archivada-en-comision-septima-del-senado-la-reforma-a-la-salud-del-gobierno-petro/",
+      },
+    ],
+  },
+  {
+    slug: "financing-law-2024",
+    lawNumber: "PL 300/2024C · 245/2024S",
+    title: "2024 tax reform (ley de financiamiento)",
+    summary:
+      "The finance ministry's package to raise about COP 12 trillion — later trimmed to ~9.8 — in new taxes, including on energy and fuels, to close the 2025 budget gap. The joint economic commissions archived it in first debate; the 2025 budget was then enacted by decree, underfunded.",
+    status: "declined",
+    date: "2024-12-11",
+    congress: "2022-2026",
+    sponsor: "Government (Petro) — Ministry of Finance",
+    sponsorParty: "Government (Petro)",
+    chamber: "Joint economic commissions — archived in first debate",
+    parties: [
+      {
+        party: "Centro Democrático",
+        vote: "against",
+        note: "Announced and voted as a bloc for archiving (Semana).",
+      },
+      {
+        party: "Partido Conservador",
+        vote: "against",
+        note: "Announced and voted as a bloc for archiving (Semana).",
+      },
+      {
+        party: "Cambio Radical",
+        vote: "against",
+        note: "Named by Semana as one of the parties key to the archiving.",
+      },
+      {
+        party: "Partido Liberal",
+        vote: "against",
+        note: "Named by Semana as one of the parties key to the archiving.",
+      },
+      {
+        party: "Pacto Histórico",
+        vote: "for",
+        note: "Government bench defended the package; no consolidated tally of the commissions' vote was published.",
+      },
+    ],
+    score: 30,
+    scoreReason:
+      "Roughly COP 12 trillion in new business and energy taxes cuts directly against the market-value and company-pipeline levers — the manifesto's own thesis is that a bigger economy, not a bigger take, funds the state. The budget hole its death left was real, but so would have been the drag.",
+    judgedBy: JUDGED_BY_FABLE,
+    sources: [
+      {
+        label: "Senado — economic commissions archive the financing law",
+        url: "https://www.senado.gov.co/index.php/el-senado/noticias/6124-comisiones-economicas-archivaron-la-ley-de-financiamiento",
+      },
+      {
+        label: "Semana — the four parties key to the sinking",
+        url: "https://www.semana.com/politica/articulo/cambio-radical-centro-democratico-liberal-y-conservador-los-partidos-clave-en-el-hundimiento-de-la-ley-de-financiamiento/202400/",
+      },
+      {
+        label: "Cámara — no consensus reached on the financing law",
+        url: "https://www.camara.gov.co/no-se-logro-consenso-para-la-ley-de-financiamiento/",
+      },
+    ],
+  },
+  {
+    slug: "education-statutory-law-2024",
+    lawNumber: "PLE 224/2023C · 274/2024S",
+    title: "Education statutory law",
+    summary:
+      "A statutory law making education an enforceable fundamental right, with progressive universalization from preschool to higher education. It cleared three of four debates, then died on 20 June 2024 when the Senate plenary never scheduled the final one before the legislature closed — a statutory law must finish within a single legislature.",
+    status: "declined",
+    date: "2024-06-20",
+    congress: "2022-2026",
+    sponsor: "Government (Petro) — Ministry of Education",
+    sponsorParty: "Government (Petro)",
+    parties: [
+      {
+        party: "All benches",
+        vote: "unverified",
+        note: "Sunk without a floor vote. The concerted text that had won opposition support in committee split into three competing ponencias after the government bench abandoned it, and the plenary never voted.",
+      },
+    ],
+    score: 58,
+    scoreReason:
+      "Education is the slowest but surest company-pipeline lever: universalizing it grows the founders, engineers and customers who build the numerator. Statutory financing obligations carry real fiscal weight, which holds the score to moderately positive.",
+    judgedBy: JUDGED_BY_FABLE,
+    sources: [
+      {
+        label: "El Tiempo — the education statutory law is officially sunk",
+        url: "https://www.eltiempo.com/politica/congreso/atencion-la-ley-estatutaria-de-la-educacion-se-hundio-oficialmente-3354269",
+      },
+      {
+        label: "La Silla Vacía — why the education statutory law sank",
+        url: "https://www.lasillavacia.com/red-de-expertos/red-de-la-educacion/por-que-se-hundio-la-ley-estatutaria-de-educacion/",
+      },
+    ],
+  },
+  {
+    slug: "sometimiento-law-2023",
+    lawNumber: "PL 288/2023S",
+    title: "Criminal-group submission law (Paz Total)",
+    summary:
+      "The judicial pillar of the Paz Total policy: a framework for organized-crime structures (Clan del Golfo, urban gangs) to submit collectively to ordinary justice and dismantle, trading reduced sentences for asset surrender. Filed March 2023, it lapsed on 20 June 2023 without ever receiving its first committee debate.",
+    status: "declined",
+    date: "2023-06-20",
+    congress: "2022-2026",
+    sponsor: "Government (Petro) — Ministry of Justice",
+    sponsorParty: "Government (Petro)",
+    parties: [
+      {
+        party: "All benches",
+        vote: "unverified",
+        note: "Lapsed when the 2022–2023 legislature ended with no first debate — no vote was ever held, so no stance is on any record.",
+      },
+    ],
+    score: 55,
+    scoreReason:
+      "Dismantling the armed structures that extort, tax and displace formal business would improve the ground conditions for the index — secure property is a precondition for founding and listing companies. Uncertain effectiveness and generous terms keep it only just above neutral.",
+    judgedBy: JUDGED_BY_FABLE,
+    sources: [
+      {
+        label: "Congreso Visible — PL 288/2023S file (ley de sometimiento)",
+        url: "https://congresovisible.uniandes.edu.co/proyectos-de-ley/ppor-la-cual-se-establecen-mecanismos-de-sujecion-a-la-justicia-ordinaria-garantias-de-no-repeticion-y-desmantelamiento-de-estructuras-armadas-organizadas-de-crimen-de-alto-impacto-y-se-dictan-otras-disposiciones-ley-de-sometimiento-a-la-justicia/12925/",
+      },
+      {
+        label: "El Tiempo — what happened to the submission law",
+        url: "https://www.eltiempo.com/politica/congreso/que-paso-con-el-proyecto-de-ley-de-sometimiento-del-gobierno-petro-858473",
+      },
+    ],
+  },
+  {
+    slug: "political-reform-2022",
+    title: "Political reform (constitutional amendment)",
+    summary:
+      "A constitutional overhaul of the electoral system — closed party lists and campaign-finance changes — that accumulated self-serving amendments (\"micos\", including extra state financing benefiting sitting legislators) as it advanced. The government withdrew it in March 2023, five debates in; its own champion publicly tore up the text.",
+    status: "declined",
+    date: "2023-03-23",
+    congress: "2022-2026",
+    sponsor: "Government (Petro)",
+    sponsorParty: "Government (Petro)",
+    parties: [
+      {
+        party: "All benches",
+        vote: "unverified",
+        note: "Withdrawn by its own sponsors mid-passage; no archiving vote occurred, so no bench stance is on the record.",
+      },
+    ],
+    score: 45,
+    scoreReason:
+      "Cleaner electoral rules could have lengthened political horizons — the manifesto's core complaint — but the text as withdrawn carried amendments that entrenched incumbents; in that form it promised little for the index in either direction.",
+    judgedBy: JUDGED_BY_FABLE,
+    sources: [
+      {
+        label: "El Tiempo — how the political reform sank",
+        url: "https://www.eltiempo.com/politica/congreso/reforma-politica-de-petro-la-historia-de-como-se-hundio-en-el-congreso-753548",
+      },
+      {
+        label: "Semana — Barreras asks the government to withdraw the reform",
+        url: "https://www.semana.com/politica/articulo/roy-barreras-termina-de-sepultar-la-reforma-politica-pido-al-gobierno-retirarla/202310/",
+      },
+    ],
+  },
 ];
 
 /* --------------------------- party scorecards ---------------------------- */
@@ -546,7 +812,10 @@ export interface PartyScorecard {
  * agenda is worth showing, but it holds no seat, never appears in a roll call,
  * and must never be listed as though it were a party with a voting record.
  */
-const NON_VOTING_SPONSORS = new Set<string>(["Government (Petro)"]);
+const NON_VOTING_SPONSORS = new Set<string>([
+  "Government (Petro)",
+  "Government (De la Espriella)",
+]);
 
 /** How many laws here have any published per-party roll call at all. */
 export function lawsWithPartyVotes(laws: Law[]): number {

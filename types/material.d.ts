@@ -27,11 +27,6 @@ declare module "react" {
       };
       "md-icon": MdElementProps & { slot?: string };
       "md-divider": MdElementProps & { inset?: boolean };
-      "md-linear-progress": MdElementProps & {
-        value?: number;
-        max?: number;
-        indeterminate?: boolean;
-      };
       "md-elevation": MdElementProps;
     }
   }

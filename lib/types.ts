@@ -40,7 +40,16 @@ export interface CountryDashboard {
 
 /* ----------------------------- legislation ----------------------------- */
 
-export type LawStatus = "passed" | "in-discussion";
+export type LawStatus = "passed" | "in-discussion" | "declined";
+
+/** Who made an editorial judgment (model, id, vendor, date) — see JUDGED_BY. */
+export interface Attribution {
+  model: string;
+  modelId: string;
+  vendor: string;
+  date: string;
+  dateLabel: string;
+}
 
 /**
  * "unverified" is a first-class value, not a gap: Colombia's per-legislator
@@ -97,5 +106,10 @@ export interface Law {
   /** Editorial judgment, 0-100. NOT measured data — see the page disclaimer. */
   score: number;
   scoreReason: string;
+  /**
+   * Set when this entry was scored by a different model than the page-level
+   * JUDGED_BY default — attribution must never drift from who actually judged.
+   */
+  judgedBy?: Attribution;
   sources: Array<{ label: string; url: string }>;
 }

@@ -32,6 +32,24 @@
      #b3261e — the Material 3 error colour — measures 5.17:1. */
   --score-pos: var(--delta-pos);
   --score-neg: #b3261e;
+  /* Categorical series colors for the seat charts (dataviz reference palette,
+     fixed slot order — the ordering is the CVD-safety mechanism). Validated
+     with the palette script against #ffffff (light cards): adjacent CVD ΔE 9.1,
+     normal ΔE 19.6, all pass; slots 3/4/5 sit under 3:1 contrast there, so the
+     legend always prints name + seats as text beside every swatch. */
+  --viz-1: #2a78d6;
+  --viz-2: #eb6834;
+  --viz-3: #1baf7a;
+  --viz-4: #eda100;
+  --viz-5: #e87ba4;
+  --viz-6: #008300;
+  --viz-7: #4a3aa7;
+  --viz-8: #e34948;
+  --viz-other: #8a8578;
+  /* Cool grey for the non-party CITREP peace seats — deliberately neutral
+     like Others (neither is a party), but a distinct temperature; the slice
+     ordering keeps the two greys non-adjacent in the ring. */
+  --viz-citrep: #5c6f80;
   --shadow-1: 0 1px 2px rgba(24, 33, 43, 0.08),
     0 8px 24px rgba(24, 33, 43, 0.06);
 }
@@ -73,6 +91,18 @@
        score block and 4.99:1 on the pill. */
     --score-pos: #17b317;
     --score-neg: #ea7373;
+    /* Same eight hues re-stepped for dark, validated against #0b1218:
+       adjacent CVD ΔE 8.4, normal ΔE 19.3, contrast all ≥3:1 — all pass. */
+    --viz-1: #3987e5;
+    --viz-2: #d95926;
+    --viz-3: #199e70;
+    --viz-4: #c98500;
+    --viz-5: #d55181;
+    --viz-6: #008300;
+    --viz-7: #9085e9;
+    --viz-8: #e66767;
+    --viz-other: #7d8791;
+    --viz-citrep: #9fb3c4;
   }
 }
 
@@ -298,9 +328,54 @@ md-primary-tab:not(:defined) {
   font-family: inherit;
 }
 
+.chart-data {
+  margin-top: 8px;
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.chart-data summary {
+  display: list-item;
+  min-height: 38px;
+  padding: 10px 0;
+  cursor: pointer;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.chart-data summary:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.chart-data-scroll {
+  max-height: 220px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.chart-data table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-data th,
+.chart-data td {
+  padding: 6px 8px;
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+  text-align: right;
+}
+
+.chart-data th:first-child {
+  text-align: left;
+}
+
 /* Ranking table */
 .table-scroll {
-  overflow-x: auto;
+  overflow-x: visible;
   margin-top: 8px;
 }
 
@@ -308,6 +383,13 @@ md-primary-tab:not(:defined) {
   width: 100%;
   border-collapse: collapse;
   min-width: 640px;
+}
+
+.rank-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--md-sys-color-surface);
 }
 
 .rank-table th {
@@ -363,6 +445,29 @@ md-primary-tab:not(:defined) {
   border-radius: 4px;
 }
 
+.manual-marker {
+  min-width: 24px;
+  min-height: 24px;
+  margin: -4px -5px -4px 1px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--md-sys-color-primary);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.manual-marker:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.manual-marker:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 1px;
+}
+
 .delta-pill {
   display: inline-block;
   padding: 1px 8px;
@@ -415,7 +520,7 @@ md-primary-tab:not(:defined) {
   border-left: 3px solid var(--md-sys-color-primary);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 700px) {
   .rank-table {
     min-width: 0;
   }
@@ -540,13 +645,6 @@ md-divider {
   margin: 4px 0;
 }
 
-md-linear-progress {
-  display: block;
-  --md-linear-progress-track-height: 6px;
-  --md-linear-progress-active-indicator-height: 6px;
-  --md-linear-progress-track-shape: 3px;
-}
-
 /* ---------------------------------------------------------------------------
    Entrance CTA (dashboard → /co)
    --------------------------------------------------------------------------- */
@@ -641,16 +739,10 @@ md-linear-progress {
   font-size: 18px;
 }
 
-.co-masthead .subtitle {
-  max-width: 62ch;
-}
-
-/* Hero: the figure and the caveats side by side, stacked on narrow screens. */
+/* Hero: the index figure panel. */
 .co-hero {
   display: grid;
-  grid-template-columns: minmax(240px, 320px) 1fr;
-  gap: 28px;
-  align-items: start;
+  grid-template-columns: 1fr;
 }
 
 .co-hero-figure {
@@ -673,12 +765,6 @@ md-linear-progress {
 
 .co-hero-figure .formula-chip {
   align-self: flex-start;
-}
-
-.co-hero-notes {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 
 /* The one block on the site that is opinion rather than measurement. */
@@ -752,11 +838,12 @@ md-linear-progress {
   border-left-color: var(--score-neg);
 }
 
+/* Party name and score share one calm editorial header. */
 .party-card-head {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 10px;
+  gap: 18px;
 }
 
 .party-basis {
@@ -765,10 +852,6 @@ md-linear-progress {
   gap: 6px;
   margin: 0;
   color: var(--md-sys-color-on-surface-variant);
-}
-
-.party-basis md-icon {
-  font-size: 16px;
 }
 
 .party-summary {
@@ -824,85 +907,73 @@ md-linear-progress {
   margin: 0;
 }
 
-/* Score block — the visual anchor of each card. */
+/* Score block — a flat editorial readout, not an instrument gauge. */
 .score-block {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  align-items: stretch;
+  gap: 8px 16px;
   padding: 12px 14px;
   border-radius: 10px;
   background: var(--md-sys-color-surface-container-high);
 }
 
-.score-top {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.score-kind {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  letter-spacing: 0.65px;
+  text-transform: uppercase;
 }
 
-.score-icon {
-  font-size: 20px;
+.score-block-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
 }
 
 .score-label {
+  display: block;
   min-width: 0;
+  margin: 3px 0 0;
+  font-weight: 700;
 }
 
-.score-num {
-  margin-left: auto;
-  font-size: 26px;
-  line-height: 28px;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.score-scale {
-  font-size: 12px;
-  font-weight: 400;
-  opacity: 0.7;
-}
-
-.score-block.good .score-icon,
-.score-block.good .score-label,
-.score-block.good .score-num,
-.score-num.good {
+.score-block.good .score-label {
   color: var(--score-pos);
 }
 
-.score-block.poor .score-icon,
-.score-block.poor .score-label,
-.score-block.poor .score-num,
-.score-num.poor {
+.score-block.poor .score-label {
   color: var(--score-neg);
 }
 
-.score-block.mixed .score-icon,
-.score-block.mixed .score-label,
-.score-block.mixed .score-num,
-.score-num.mixed {
+.score-block.mixed .score-label {
   color: var(--md-sys-color-on-surface-variant);
 }
 
-.score-block.good .score-meter,
-.party-card.band-good .score-meter {
-  --md-linear-progress-active-indicator-color: var(--score-pos);
+.score-value {
+  display: flex;
+  flex: none;
+  align-items: baseline;
+  gap: 3px;
+  margin: 0;
+  color: var(--md-sys-color-on-surface);
+  font-variant-numeric: tabular-nums;
 }
 
-.score-block.poor .score-meter,
-.party-card.band-poor .score-meter {
-  --md-linear-progress-active-indicator-color: var(--score-neg);
+.score-value strong {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: 42px;
+  font-weight: 500;
+  letter-spacing: -1.5px;
+  line-height: 0.9;
 }
 
-.score-block.mixed .score-meter,
-.party-card.band-mixed .score-meter {
-  --md-linear-progress-active-indicator-color: var(
-    --md-sys-color-on-surface-variant
-  );
-}
-
-.score-meter {
-  --md-linear-progress-track-color: var(--md-sys-color-outline-variant);
+.score-value span {
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .score-reason {
@@ -1064,10 +1135,6 @@ md-linear-progress {
     font-size: 26px;
   }
 
-  .score-num {
-    font-size: 22px;
-  }
-
   .section-count {
     margin-left: 0;
     flex-basis: 100%;
@@ -1133,19 +1200,23 @@ md-linear-progress {
 /* Model attribution — shown wherever a judgment rather than a measurement is
    on screen, so the reader always knows whose opinion they are reading. */
 .judged-by {
-  display: flex;
-  gap: 10px;
-  margin: 10px 0 0;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px dashed var(--md-sys-color-outline);
-  background: var(--md-sys-color-surface-container);
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 16px 24px;
+  margin: 18px 0 0;
+  padding: 18px 0;
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
   color: var(--md-sys-color-on-surface-variant);
+  line-height: 1.5;
 }
 
-.judged-by md-icon {
-  font-size: 18px;
-  margin-top: 1px;
+.judged-by-label {
+  color: var(--md-sys-color-on-surface);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 .judged-by code {
@@ -1154,20 +1225,6 @@ md-linear-progress {
   padding: 1px 4px;
   border-radius: 4px;
   background: var(--md-sys-color-surface-container-high);
-}
-
-.score-by {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  margin: 0;
-  color: var(--md-sys-color-on-surface-variant);
-  font-style: italic;
-}
-
-.score-by md-icon {
-  font-size: 14px;
-  margin-top: 1px;
 }
 
 /* Caveat variant of the editorial note — the population-denominator warning,
@@ -1182,73 +1239,42 @@ md-linear-progress {
 }
 
 /* ---------------------------------------------------------------------------
-   Shared 0–100 threshold key
+   Shared 0–100 score rail — red 0–45, grey 45–55, green 55–100
    --------------------------------------------------------------------------- */
 
-.score-scale-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.score-rail {
+  width: 100%;
+  padding-top: 6px;
 }
 
-.score-progress-track {
+.score-rail-track {
   position: relative;
+  height: 6px;
 }
 
-.score-threshold-line {
+.score-rail-marker {
   position: absolute;
-  top: -3px;
-  bottom: -3px;
-  left: 50%;
-  z-index: 1;
+  top: 50%;
   width: 2px;
-  border-radius: 2px;
-  background: var(--md-sys-color-surface-container-lowest);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--md-sys-color-on-surface) 42%, transparent);
-  pointer-events: none;
+  height: 18px;
+  background: var(--md-sys-color-on-surface);
+  box-shadow: 0 0 0 2px var(--md-sys-color-surface-container-lowest);
+  transform: translate(-50%, -50%);
 }
 
-.score-scale-key {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 8px;
+.score-block .score-rail-marker {
+  box-shadow: 0 0 0 2px var(--md-sys-color-surface-container-lowest);
+}
+
+.score-rail-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 7px;
   color: var(--md-sys-color-on-surface-variant);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-  line-height: 1.25;
-}
-
-.score-scale-key > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.score-scale-key md-icon {
-  font-size: 13px;
-}
-
-.score-scale-key strong {
-  font-variant-numeric: tabular-nums;
-}
-
-.scale-lowers {
-  color: var(--score-neg);
-}
-
-.scale-neutral {
-  justify-self: center;
-  padding: 2px 6px;
-  border-right: 1px solid var(--md-sys-color-outline-variant);
-  border-left: 1px solid var(--md-sys-color-outline-variant);
-}
-
-.scale-improves {
-  justify-self: end;
-  color: var(--score-pos);
-  text-align: right;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.55px;
+  text-transform: uppercase;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1702,6 +1728,7 @@ md-linear-progress {
 @media (max-width: 700px) {
   .dashboard-topline {
     align-items: flex-start;
+    padding-bottom: 18px;
   }
 
   .dashboard-edition {
@@ -1710,12 +1737,17 @@ md-linear-progress {
   }
 
   .dashboard-title-block {
-    padding: 44px 0 36px;
+    padding: 30px 0 24px;
   }
 
   .dashboard-title-block h1 {
-    font-size: clamp(44px, 13vw, 60px);
-    letter-spacing: -1.8px;
+    font-size: clamp(40px, 11.5vw, 50px);
+    letter-spacing: -1.5px;
+    line-height: 0.98;
+  }
+
+  .dashboard-deck {
+    margin-top: 16px;
   }
 
   .dashboard-nav {
@@ -1729,8 +1761,12 @@ md-linear-progress {
   }
 
   .dashboard-index-stat {
-    min-height: 400px;
+    min-height: 340px;
     padding: 34px 24px 28px;
+  }
+
+  .dashboard-index {
+    margin-top: 28px;
   }
 
   .dashboard-index-chart {
@@ -1761,10 +1797,6 @@ md-linear-progress {
     padding: 22px 20px;
   }
 
-  .score-scale-key {
-    gap: 5px;
-    font-size: 9px;
-  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -1814,8 +1846,7 @@ summary {
 
 h1,
 h2,
-.section-heading,
-.method-heading h2 {
+.section-heading {
   font-family: var(--font-newsreader), Georgia, serif;
   font-optical-sizing: auto;
   text-wrap: balance;
@@ -1907,18 +1938,21 @@ md-tabs {
   line-height: 0.96;
 }
 
-.co-title-block .subtitle {
-  grid-column: 2;
-  max-width: 60ch;
-  margin: 20px 0 0;
-  color: var(--md-sys-color-on-surface-variant);
-}
-
 .co-jump-nav {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  position: sticky;
+  top: 0;
+  z-index: 20;
   border-top: 1px solid var(--md-sys-color-on-surface);
   border-bottom: 1px solid var(--md-sys-color-on-surface);
+  background: color-mix(
+    in srgb,
+    var(--md-sys-color-surface) 94%,
+    transparent
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .co-jump-nav a {
@@ -1952,7 +1986,6 @@ md-tabs {
 }
 
 .co-jump-nav a:focus-visible,
-.method-details summary:focus-visible,
 .law-evidence summary:focus-visible {
   z-index: 1;
   outline: 3px solid var(--md-sys-color-primary);
@@ -1965,7 +1998,7 @@ md-tabs {
 
 .co-hero {
   display: grid;
-  grid-template-columns: minmax(310px, 0.8fr) minmax(0, 1.4fr);
+  grid-template-columns: 1fr;
   gap: 0;
   overflow: hidden;
   border: 1px solid var(--md-sys-color-outline-variant);
@@ -1977,7 +2010,7 @@ md-tabs {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 520px;
+  min-height: 320px;
   padding: 42px 36px 36px;
   overflow: hidden;
   background: #173f67;
@@ -1994,20 +2027,6 @@ md-tabs {
     #2455a4 50% 75%,
     #c8333a 75% 100%
   );
-  content: "";
-}
-
-.co-hero-figure::after {
-  position: absolute;
-  right: -72px;
-  bottom: -72px;
-  width: 260px;
-  height: 260px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 34px rgba(255, 255, 255, 0.035),
-    0 0 0 72px rgba(255, 255, 255, 0.025);
   content: "";
 }
 
@@ -2059,94 +2078,10 @@ md-tabs {
   color: #2f2908;
 }
 
-.co-index-caption {
-  position: relative;
-  z-index: 1;
-  max-width: 38ch;
-  margin: 16px 0 0;
-  color: rgba(255, 255, 255, 0.76);
-}
-
-.co-hero-notes {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  padding: 42px;
-}
-
-.method-heading .co-eyebrow {
-  margin: 0 0 10px;
-}
-
-.method-heading h2 {
-  margin: 0;
-  font-size: clamp(32px, 3.4vw, 46px);
-  font-weight: 500;
-  letter-spacing: -1px;
-  line-height: 1;
-}
-
-.method-heading > p:last-child {
-  max-width: 58ch;
-  margin: 14px 0 0;
-  color: var(--md-sys-color-on-surface-variant);
-}
-
-.lever-list {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 30px 0 0;
-  padding: 0;
-  border-top: 1px solid var(--md-sys-color-outline-variant);
-  list-style: none;
-}
-
-.lever-list li {
-  min-width: 0;
-  padding: 20px 16px 18px 0;
-}
-
-.lever-list li + li {
-  padding-left: 16px;
-  border-left: 1px solid var(--md-sys-color-outline-variant);
-}
-
-.lever-list li > span {
-  display: block;
-  margin-bottom: 20px;
-  color: var(--md-sys-color-primary);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-
-.lever-list strong {
-  font-size: 14px;
-}
-
-.lever-list p {
-  margin: 6px 0 0;
-  color: var(--md-sys-color-on-surface-variant);
-  font-size: 12px;
-  line-height: 1.45;
-}
-
-.co-hero-notes .judged-by {
-  margin: auto 0 0;
-  padding: 18px 0;
-  border: 0;
-  border-top: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 0;
-  background: transparent;
-  font-style: normal;
-}
-
-.method-details,
 .law-evidence {
   border-top: 1px solid var(--md-sys-color-outline-variant);
 }
 
-.method-details summary,
 .law-evidence summary {
   display: flex;
   align-items: center;
@@ -2160,42 +2095,34 @@ md-tabs {
   list-style: none;
 }
 
-.method-details summary::-webkit-details-marker,
 .law-evidence summary::-webkit-details-marker {
   display: none;
 }
 
-.method-details summary::after {
-  content: "+";
-  color: var(--md-sys-color-primary);
-  font-size: 20px;
-  font-weight: 400;
-}
-
-.method-details[open] summary::after {
-  content: "−";
-}
-
-.method-details-body {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px 24px;
-  padding: 4px 0 18px;
-  color: var(--md-sys-color-on-surface-variant);
-}
-
-.method-details-body p {
-  margin: 0;
-}
-
-.method-details code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.9em;
-}
-
 .laws-section {
   margin-top: 80px;
-  scroll-margin-top: 24px;
+  scroll-margin-top: 80px;
+}
+
+.section-return {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 24px;
+  color: var(--md-sys-color-primary);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.section-return:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.section-return:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 3px;
 }
 
 .section-heading-wrap {
@@ -2250,31 +2177,85 @@ md-tabs {
 }
 
 .party-grid {
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
   margin-top: 20px;
-  border-top: 1px solid var(--md-sys-color-outline-variant);
-  border-left: 1px solid var(--md-sys-color-outline-variant);
+  border: 0;
+}
+
+.party-grid.executive-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .party-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
   min-width: 0;
-  padding: 22px;
-  border: 0;
-  border-right: 1px solid var(--md-sys-color-outline-variant);
-  border-bottom: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 0;
+  padding: 24px;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-top-width: 3px;
+  border-radius: 4px;
   background: var(--md-sys-color-surface-container-lowest);
 }
 
-.party-card.band-good,
+.party-card.band-good {
+  border-top-color: var(--score-pos);
+  border-left-color: var(--md-sys-color-outline-variant);
+}
+
 .party-card.band-poor {
-  border-left: 0;
+  border-top-color: var(--score-neg);
+  border-left-color: var(--md-sys-color-outline-variant);
+}
+
+.party-card.band-mixed {
+  border-top-color: var(--md-sys-color-outline);
 }
 
 .party-card h3 {
   font-family: var(--font-newsreader), Georgia, serif;
-  font-size: 20px;
+  font-size: 25px;
+  font-weight: 500;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+.party-card .score-kind {
+  margin-top: -2px;
+}
+
+.party-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  flex-wrap: wrap;
+  padding-top: 2px;
+}
+
+.party-record-count {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.score-verdict {
+  font-weight: 700;
+}
+
+.score-verdict.good {
+  color: var(--score-pos);
+}
+
+.score-verdict.poor {
+  color: var(--score-neg);
+}
+
+.score-verdict.mixed {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.party-summary {
+  line-height: 1.55;
 }
 
 .group-heading {
@@ -2328,7 +2309,7 @@ md-tabs {
 }
 
 .score-block {
-  gap: 10px;
+  gap: 14px;
   padding: 16px 0;
   border-top: 1px solid var(--md-sys-color-outline-variant);
   border-bottom: 1px solid var(--md-sys-color-outline-variant);
@@ -2336,22 +2317,9 @@ md-tabs {
   background: transparent;
 }
 
-.score-num {
-  font-family: var(--font-newsreader), Georgia, serif;
-  font-size: 36px;
-  font-weight: 500;
-  line-height: 1;
-}
-
 .score-reason {
   font-size: 13px;
   line-height: 1.5;
-}
-
-.score-by {
-  align-items: center;
-  padding-top: 2px;
-  font-style: normal;
 }
 
 .law-summary {
@@ -2364,12 +2332,26 @@ md-tabs {
   margin-top: auto;
 }
 
-.law-evidence summary md-icon {
-  transition: transform 150ms ease;
+.details-toggle {
+  position: relative;
+  flex: none;
+  width: 20px;
+  height: 20px;
 }
 
-.law-evidence[open] summary md-icon {
-  transform: rotate(180deg);
+.details-toggle::before {
+  position: absolute;
+  inset: 0;
+  color: var(--md-sys-color-primary);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 18px;
+  text-align: center;
+  content: "+";
+}
+
+.law-evidence[open] .details-toggle::before {
+  content: "−";
 }
 
 .law-evidence-body {
@@ -2420,6 +2402,314 @@ footer.colophon {
   padding-top: 20px;
 }
 
+/* ---------------------------------------------------------------------------
+   Congress panels — seat donuts and legislative throughput
+   --------------------------------------------------------------------------- */
+
+.congress-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+  margin-top: 24px;
+}
+
+.congress-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 4px;
+  background: var(--md-sys-color-surface-container-lowest);
+}
+
+.congress-card h3 {
+  margin: 0;
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.congress-period-note {
+  margin: -10px 0 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Throughput numbers: filed / became law / didn't pass. The separators
+   around this row are real md-divider components, not CSS borders. */
+.congress-stats {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  padding: 2px 0;
+}
+
+.congress-stats > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.congress-stats dt {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.congress-stats dd {
+  margin: 4px 0 0;
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.congress-stats .stat-na {
+  font-size: 18px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+
+/* Seat donut + legend. Colors ride the --_c custom property so the slice
+   (fill) and its legend swatch (background) stay in lockstep. */
+.seat-pie {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px 22px;
+  align-items: center;
+  margin: 0;
+}
+
+.seat-pie svg {
+  width: 168px;
+  height: auto;
+}
+
+.viz-1 { --_c: var(--viz-1); }
+.viz-2 { --_c: var(--viz-2); }
+.viz-3 { --_c: var(--viz-3); }
+.viz-4 { --_c: var(--viz-4); }
+.viz-5 { --_c: var(--viz-5); }
+.viz-6 { --_c: var(--viz-6); }
+.viz-7 { --_c: var(--viz-7); }
+.viz-8 { --_c: var(--viz-8); }
+.viz-other { --_c: var(--viz-other); }
+.viz-citrep { --_c: var(--viz-citrep); }
+
+.pie-slice {
+  fill: var(--_c);
+  stroke: var(--md-sys-color-surface-container-lowest);
+  stroke-width: 2;
+}
+
+.pie-total {
+  fill: var(--md-sys-color-on-surface);
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: 36px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.pie-total-label {
+  fill: var(--md-sys-color-on-surface-variant);
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.seat-notes {
+  display: none;
+}
+
+.pie-legend li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.legend-swatch {
+  flex: none;
+  align-self: center;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--_c);
+}
+
+.legend-label {
+  min-width: 0;
+}
+
+.legend-note {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.legend-count {
+  margin-left: auto;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.legend-pct {
+  color: var(--md-sys-color-on-surface-variant);
+  font-weight: 400;
+}
+
+/* Executive cards borrow the congress stats row at a smaller scale. */
+.party-card .congress-stats dd {
+  font-size: 24px;
+}
+
+/* Laws-per-year timeline under the congress cards. */
+.laws-year-chart {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 24px 24px 18px;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: 4px;
+  background: var(--md-sys-color-surface-container-lowest);
+}
+
+.laws-year-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.laws-year-chart .chart-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  color: var(--md-sys-color-on-surface-variant);
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.laws-year-chart .chart-title md-icon {
+  font-size: 18px;
+}
+
+.laws-year-chart .band-fill {
+  fill: transparent;
+}
+
+.laws-year-chart .band-fill.band-alt {
+  fill: color-mix(in srgb, var(--md-sys-color-on-surface) 4%, transparent);
+}
+
+.laws-year-chart .band-edge {
+  stroke: var(--md-sys-color-outline-variant);
+  stroke-dasharray: 3 3;
+}
+
+.laws-year-chart .band-label {
+  fill: var(--md-sys-color-on-surface-variant);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.laws-year-chart .chart-baseline {
+  stroke: var(--md-sys-color-outline-variant);
+}
+
+.laws-year-chart .area-fill {
+  fill: var(--chart-stroke);
+  fill-opacity: 0.16;
+}
+
+.laws-year-chart .area-line {
+  fill: none;
+  stroke: var(--chart-stroke);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* Running-year tail: dashed so a partial count never reads as a collapse. */
+.laws-year-chart .area-line-partial {
+  stroke-dasharray: 5 5;
+}
+
+.laws-year-chart .area-dot {
+  fill: var(--chart-stroke);
+}
+
+.laws-year-chart .area-dot-partial {
+  fill: var(--md-sys-color-surface-container-lowest);
+  stroke: var(--chart-stroke);
+  stroke-width: 2;
+}
+
+.laws-year-chart .point-value {
+  fill: var(--md-sys-color-on-surface);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.laws-year-chart .point-year {
+  fill: var(--md-sys-color-on-surface-variant);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ranking-sources {
+  margin-top: 20px;
+  padding: 14px 0;
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.ranking-sources summary {
+  min-height: 32px;
+  cursor: pointer;
+  color: var(--md-sys-color-primary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ranking-sources summary:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 3px;
+}
+
+.ranking-sources p {
+  max-width: 82ch;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.ranking-sources ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 28px;
+  margin: 14px 0 0;
+  padding-left: 20px;
+}
+
+.ranking-sources li {
+  scroll-margin-top: 80px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -2444,20 +2734,17 @@ footer.colophon {
     margin: 0 0 14px;
   }
 
-  .co-title-block .subtitle {
-    grid-column: 1;
-  }
-
-  .co-hero {
-    grid-template-columns: 1fr;
-  }
-
-  .co-hero-figure {
-    min-height: 430px;
-  }
-
   .law-grid {
     grid-template-columns: 1fr;
+  }
+
+  .congress-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .party-grid,
+  .party-grid.executive-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -2477,55 +2764,118 @@ footer.colophon {
   }
 
   .co-title-block h1 {
-    font-size: clamp(42px, 13vw, 58px);
-    letter-spacing: -1.6px;
+    font-size: clamp(39px, 11vw, 48px);
+    letter-spacing: -1.3px;
+    line-height: 0.98;
+  }
+
+  .co-title-block {
+    padding: 30px 0 24px;
+  }
+
+  .co-title-block .co-eyebrow {
+    margin-bottom: 10px;
+  }
+
+  .co-overview {
+    margin-top: 28px;
   }
 
   .co-jump-nav {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .co-jump-nav a {
+    gap: 8px;
+    min-height: 48px;
+    padding: 8px 10px;
+    font-size: 13px;
   }
 
   .co-jump-nav a + a {
-    border-top: 1px solid var(--md-sys-color-outline-variant);
+    border-left: 1px solid var(--md-sys-color-outline-variant);
+  }
+
+  .co-jump-nav a:nth-child(odd) {
     border-left: 0;
+  }
+
+  .co-jump-nav a:nth-child(n + 3) {
+    border-top: 1px solid var(--md-sys-color-outline-variant);
   }
 
   .co-hero-figure {
-    min-height: 400px;
-    padding: 34px 24px 28px;
+    min-height: 250px;
+    padding: 28px 22px 24px;
   }
 
-  .co-hero-notes {
-    padding: 30px 24px;
-  }
-
-  .lever-list {
+  .judged-by {
     grid-template-columns: 1fr;
-  }
-
-  .lever-list li {
-    display: grid;
-    grid-template-columns: 34px 1fr;
     gap: 8px;
-    padding: 16px 0;
   }
 
-  .lever-list li + li {
-    padding-left: 0;
-    border-top: 1px solid var(--md-sys-color-outline-variant);
-    border-left: 0;
+  .score-reason {
+    font-size: 14px;
+    line-height: 1.55;
   }
 
-  .lever-list li > span {
-    margin: 2px 0 0;
-  }
-
-  .method-details-body {
+  .seat-pie {
     grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .seat-pie svg {
+    width: 142px;
+  }
+
+  .legend-note {
+    display: none;
+  }
+
+  .seat-notes {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--md-sys-color-outline-variant);
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .seat-notes summary {
+    min-height: 36px;
+    cursor: pointer;
+    color: var(--md-sys-color-primary);
+    font-weight: 700;
+  }
+
+  .seat-notes ul {
+    margin: 8px 0 0;
+    padding-left: 18px;
+  }
+
+  .seat-notes li + li {
+    margin-top: 7px;
+  }
+
+  .seat-pie figcaption {
+    justify-self: stretch;
+  }
+
+  /* Keep the timeline legible on phones: it scrolls inside its own box
+     instead of shrinking to unreadable text or overflowing the page. */
+  .laws-year-chart {
+    overflow-x: auto;
+  }
+
+  .laws-year-chart svg {
+    min-width: 560px;
   }
 
   .laws-section {
     margin-top: 64px;
+    scroll-margin-top: 116px;
   }
 
   .section-count {
@@ -2536,8 +2886,21 @@ footer.colophon {
     padding: 22px 20px;
   }
 
+  .party-grid,
+  .party-grid.executive-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .party-card {
+    padding: 22px 20px;
+  }
+
   .law-title h3 {
     font-size: 24px;
+  }
+
+  .ranking-sources ul {
+    grid-template-columns: 1fr;
   }
 }
 

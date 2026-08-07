@@ -4,19 +4,23 @@ import { useState } from "react";
 import Link from "next/link";
 import Sparkline from "./Sparkline";
 import { fmtCompact, fmtDelta } from "@/lib/format";
+import type { RankingSortKey, RankingSortState } from "@/lib/dashboard-state";
 import type { RankingEntry } from "@/lib/types";
 
 const FOCUS_CODES = new Set(["COL", "USA"]);
 
 const MAX_AGE_YEARS = 5;
 
-type SortKey = "index" | "delta";
-
-export default function Ranking({ entries }: { entries: RankingEntry[] }) {
-  const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({
-    key: "index",
-    dir: -1,
-  });
+export default function Ranking({
+  entries,
+  sort,
+  onSortChange,
+}: {
+  entries: RankingEntry[];
+  sort: RankingSortState;
+  onSortChange: (sort: RankingSortState) => void;
+}) {
+  const [manualSourcesOpen, setManualSourcesOpen] = useState(false);
   const withData = entries.filter((e) => e.latest);
   const noData = entries.filter((e) => !e.latest);
   const currentYear = Math.max(...withData.map((e) => e.latest!.year));
@@ -25,6 +29,9 @@ export default function Ranking({ entries }: { entries: RankingEntry[] }) {
   );
   const outdated = withData.filter(
     (e) => e.latest!.year < currentYear - MAX_AGE_YEARS,
+  );
+  const manualSourceEntries = [...ranked, ...outdated].filter(
+    (entry) => entry.manualSource,
   );
 
   // Canonical rank always follows the index, whatever the sort shows.
@@ -42,18 +49,29 @@ export default function Ranking({ entries }: { entries: RankingEntry[] }) {
     return (value(b) - value(a)) * (sort.dir === -1 ? 1 : -1);
   });
 
-  const toggleSort = (key: SortKey) =>
-    setSort((s) =>
-      s.key === key ? { key, dir: s.dir === -1 ? 1 : -1 } : { key, dir: -1 },
+  const toggleSort = (key: RankingSortKey) =>
+    onSortChange(
+      sort.key === key
+        ? { key, dir: sort.dir === -1 ? 1 : -1 }
+        : { key, dir: -1 },
     );
-  const ariaSort = (key: SortKey) =>
+  const ariaSort = (key: RankingSortKey) =>
     sort.key === key
       ? sort.dir === -1
         ? ("descending" as const)
         : ("ascending" as const)
       : undefined;
-  const arrow = (key: SortKey) =>
+  const arrow = (key: RankingSortKey) =>
     sort.key === key ? (sort.dir === -1 ? " ▾" : " ▴") : "";
+
+  const showManualSource = (code: string) => {
+    setManualSourcesOpen(true);
+    window.requestAnimationFrame(() => {
+      document
+        .getElementById(`manual-source-${code}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  };
 
   return (
     <section className="ranking-view">
@@ -111,6 +129,7 @@ export default function Ranking({ entries }: { entries: RankingEntry[] }) {
                   entry={entry}
                   rank={rank}
                   stale={entry.latest!.year < currentYear - 2}
+                  onShowManualSource={showManualSource}
                 />
               ))}
               {outdated.length > 0 && (
@@ -122,7 +141,13 @@ export default function Ranking({ entries }: { entries: RankingEntry[] }) {
                     </td>
                   </tr>
                   {outdated.map((e) => (
-                    <RankingRow key={e.code} entry={e} rank={null} stale />
+                    <RankingRow
+                      key={e.code}
+                      entry={e}
+                      rank={null}
+                      stale
+                      onShowManualSource={showManualSource}
+                    />
                   ))}
                 </>
               )}
@@ -140,18 +165,31 @@ export default function Ranking({ entries }: { entries: RankingEntry[] }) {
             .
           </p>
         )}
-        {ranked.some((e) => e.manualSource) && (
-          <p className="proxy-note md-typescale-label-medium">
-            † Hand-collected from exchange statistics (non-USD figures at each
-            source&apos;s published rate; company counts may include
-            growth-market segments, so not strictly comparable with older World
-            Bank values):{" "}
-            {ranked
-              .filter((e) => e.manualSource)
-              .map((e) => `${e.name} — ${e.manualSource}`)
-              .join("; ")}
-            .
-          </p>
+        {manualSourceEntries.length > 0 && (
+          <details
+            className="ranking-sources"
+            id="manual-supplements"
+            open={manualSourcesOpen}
+            onToggle={(event) =>
+              setManualSourcesOpen(event.currentTarget.open)
+            }
+          >
+            <summary>
+              Manual exchange supplements ({manualSourceEntries.length})
+            </summary>
+            <p className="md-typescale-label-medium">
+              Non-USD figures use each source&apos;s published rate. Company
+              counts may include growth-market segments, so they are not always
+              strictly comparable with older World Bank values.
+            </p>
+            <ul className="md-typescale-label-medium">
+              {manualSourceEntries.map((e) => (
+                <li id={`manual-source-${e.code}`} key={e.code}>
+                  <strong>{e.name}</strong> — {e.manualSource}
+                </li>
+              ))}
+            </ul>
+          </details>
         )}
         {noData.length > 0 && (
           <p className="proxy-note md-typescale-label-medium">
@@ -173,10 +211,12 @@ function RankingRow({
   entry,
   rank,
   stale,
+  onShowManualSource,
 }: {
   entry: RankingEntry;
   rank: number | null;
   stale: boolean;
+  onShowManualSource: (code: string) => void;
 }) {
   const first = entry.points[0];
   const latest = entry.latest!;
@@ -219,7 +259,15 @@ function RankingRow({
       <td className="num">
         {latest.year}
         {entry.manualSource && (
-          <span title={entry.manualSource}>&thinsp;†</span>
+          <button
+            type="button"
+            className="manual-marker"
+            title={entry.manualSource}
+            aria-label={`Show manual source for ${entry.name}`}
+            onClick={() => onShowManualSource(entry.code)}
+          >
+            †
+          </button>
         )}
       </td>
     </tr>

@@ -380,7 +380,7 @@ export async function getDashboardData(): Promise<CountryDashboard[]> {
       code === "USA"
         ? buildSeries(
             "newbiz",
-            "New businesses (net)",
+            "New business registrations",
             "count",
             "US Census via FRED (BABATOTALSAUS)",
             usBizApps ? sumPerCompleteYear(usBizApps) : null,
@@ -388,7 +388,7 @@ export async function getDashboardData(): Promise<CountryDashboard[]> {
           )
         : buildSeries(
             "newbiz",
-            "New businesses (net)",
+            "New business registrations",
             "count",
             "World Bank Entrepreneurship Database (IC.BUS.NREG)",
             newBizCol?.COL ?? null,
@@ -397,7 +397,7 @@ export async function getDashboardData(): Promise<CountryDashboard[]> {
 
     const births = buildSeries(
       "births",
-      "Birth certificates issued",
+      "Estimated births",
       "count",
       "World Bank (SP.DYN.CBRT.IN × SP.POP.TOTL)",
       joinYears(

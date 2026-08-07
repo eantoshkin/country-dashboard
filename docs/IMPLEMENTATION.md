@@ -1,6 +1,6 @@
 # Implementation notes
 
-Status of the Good Country Dashboard as of **2026-08-06** (evening session).
+Status of the Good Country Dashboard as of **2026-08-07**.
 
 - **2026-07-30** — initial build; three ranking-data supplement batches covering
   all 39 countries; mobile table fix; color-coded change capsules; sortable
@@ -28,6 +28,212 @@ Status of the Good Country Dashboard as of **2026-08-06** (evening session).
   deepening that took verified party coverage from 1 to 2 of 14 laws.
   Details below. A 2× scenario panel was built and then **removed on the
   owner's instruction — do not rebuild it** (see Ideas section).
+- **2026-08-07 (second pass)** — nine follow-up instructions: bench cards
+  ordered by seats in the sitting Congress; executive section split into the
+  De la Espriella and Petro governments with filed/passed/didn't-pass
+  numbers; law cards reordered (summary before score); attribution collapsed
+  to a single hero disclosure; congresses ordered recent-first; congress-card
+  sources and scope notes removed from the UI (kept in lib comments/docs);
+  seat legends gained percentages; and a laws-per-year area chart (2016–2026,
+  official Senate numbering-derived counts) with congress periods banded on
+  the timeline. Details in the second session summary below.
+- **2026-08-07** — /co cleanup and expansion on the owner's instructions:
+  circular score gauges replacing the linear ScoreScale everywhere, methodology
+  and caveat copy stripped from the page, sections renamed, a new
+  "Bills declined or archived" section (5 researched bills), and a Congress
+  panel in the Party record section with seat donuts and throughput numbers
+  for both the 2022–2026 and 2026–2030 Congresses. Details below.
+- **2026-08-07 (UX audit pass)** — incremental clarity and mobile refinements:
+  metric labels now describe the data actually shown; homepage view and ranking
+  sort state are shareable in the URL; ranking headers and `/co` section
+  navigation stay visible while reading; dense Congress notes collapse on
+  phones; editorial 0–100 gauges are visibly identified; charts expose exact
+  values in semantic tables; and manually supplemented ranking sources use an
+  accessible disclosure. The index formula and underlying datasets are
+  unchanged. Vitest (35 tests), ESLint, and the static production build pass.
+- **2026-08-07 (`/co` visual follow-up)** — removed the circular score gauges
+  and repeated directional arrows after the owner rejected that treatment.
+  Every party, executive, and law judgment now uses a flat 0–100 editorial
+  rail with a vertical position mark and visible neutral midpoint. Party cards
+  use a roomier three-column desktop grid, explicit numeric hierarchy, and
+  text verdicts; law disclosures use a restrained plus/minus control. The
+  attribution block and repeated section-return links were simplified too,
+  and the decorative concentric rings were removed from the index hero.
+- **2026-08-07 (final maintenance pass)** — centralized the 45/55 editorial
+  score bands and aligned the rail gradient and accessible descriptions to the
+  same constants; made laws-per-year title and accessibility copy derive from
+  the chart data and its partial-year cutoff; guarded empty/all-partial chart
+  input; and fixed manual-source disclosure targets for outdated ranking rows.
+  Documentation now matches the shipped Congress totals and 2016–2026 area
+  chart. Vitest (40 tests), ESLint, and the static production build pass.
+
+## Session summary — 2026-08-07 final maintenance and validation
+
+- **One score-band source**: `lib/score-band.ts` exports the poor/mixed/good
+  classification and its 45/55 boundaries. `LawCard`, `PartyScorecards`, and
+  `ScoreRail` reuse those exports, so labels, accessible explanations, and the
+  rail gradient cannot silently diverge.
+- **Data-driven laws timeline copy**: `LAWS_PER_YEAR` carries the 2026 running
+  year's `asOf` cutoff. `lib/laws-per-year.ts` derives the year range, partial
+  note, first/peak/partial values, and spoken range used by the chart title and
+  accessibility label. Appending or completing a year now updates the copy with
+  the data. The chart returns safe empty SVG output when no complete-year point
+  exists instead of dereferencing a missing point.
+- **Ranking manual sources**: the disclosure now includes both ranked and
+  outdated entries that have a manual supplement. Every visible † button uses
+  the same `manual-source-{code}` target rendered in the disclosure.
+- **Congress documentation**: the current 2022–2026 cohort is consistently
+  recorded as 3,011 filed / 344 became law / 2,667 "Didn't pass." The ≈320
+  sanctioned-in-window count remains documented only as an incompatible,
+  rejected alternative scope.
+- **Final checks**: seven Vitest files / 40 tests, ESLint, `git diff --check`,
+  and the Next.js 16.3.0 production build all pass.
+
+## Session summary — 2026-08-07 second pass: ordering, executives, timeline
+
+- **Bench ordering**: party cards sort by `CURRENT_SEATS` (lib/congress-co.ts,
+  combined 2026–2030 seats; 0 = no seat now, sorts last). Update that map
+  whenever seat data changes.
+- **The executive**: rendered from `EXECUTIVES` (recent first) joined to the
+  scorecards by sponsor name. De la Espriella government (Defensores de la
+  Patria; won the 21 Jun 2026 runoff 49.6/48.7 vs Cepeda — the narrowest
+  margin since runoffs began; inaugurated 7 Aug 2026, first inauguration
+  outside Bogotá): 0 filed / 0 / 0 — an administration can only file once in
+  office. Petro government: 120 filed / 51 became law / 69 didn't pass —
+  Orza per-legislature scope via El Tiempo (43+22+27+28 / 27+10+8+6);
+  OTHER published tallies genuinely disagree by counting method (32-of-331
+  approved-by-origin; El País 22/1 for 2025–26; 1-of-5 flagship reforms) and
+  are documented in the lib comment — never blend scopes. "Government
+  (De la Espriella)" is pre-registered in `NON_VOTING_SPONSORS`.
+- **Attribution noise**: per-card "Scored by…" bylines and the scorecard
+  footer are gone; the hero strip is the page's single disclosure and names
+  which model judged what. `Law.judgedBy` stays in the data — the record of
+  who judged is a data fact even when not rendered per card.
+- **Card order**: law cards read summary first, then the score block — what
+  the bill is before what the model thinks of it.
+- **Congress cards**: 2026–2030 first; UI sources and scope notes removed on
+  the owner's instruction (kept in lib comments and this file). Seat legends
+  print percentages of the combined total.
+- **Laws-per-year chart** (`components/LawsPerYearChart.tsx`, data in
+  lib/congress-co.ts): an AREA chart (owner's choice after a first bar
+  version), 2016–2026, counts derived from the Senate database's strictly
+  sequential law numbering (ranges verified gap-free, boundary sanction
+  dates checked; 2024 corroborated by Ofiscal, 2025 by the Marco Fiscal via
+  Semana; press counts for 2019–21 run exactly one lower — they count only
+  laws the President personally sanctioned). Congress bands sit at the true
+  20-July boundaries (year + 0.55) — an election-year's laws belong to two
+  congresses. 2026 is a running year (57 by 7 Aug): rendered as a dashed
+  tail with a hollow marker and a `2026*` label, the area fill stopping at
+  2025, so the partial count never reads as a collapse — bump `count` as
+  the year advances and drop `partial` once it closes. Near-peak value
+  labels drop below their dot to avoid the band-label strip. On phones the
+  chart scrolls in its own box.
+- **Congress stats scope fix (owner's questions)**: the 2022–2026 card
+  briefly showed "≈320 / —" because two published scopes were mixed. Now one
+  scope throughout — Orza cohort tracking of bills filed in the term:
+  3,011 filed / 344 became law / 2,667 didn't pass (exact complement; the
+  Congress closed 20 Jun 2026 and bills cannot cross congresses, so every
+  filed bill is law or dead). The sanctioned-in-window figure (≈320, El
+  Espectador) is recorded in the lib comment and must never be blended with
+  the cohort numbers. Stat label is "Didn't pass" everywhere.
+- **Material Web in the new UI**: the separators around every stats row are
+  real `md-divider` components and the chart title carries an `md-icon` —
+  Material Web stays the control layer (tabs, icons, buttons, dividers,
+  elevation); charts remain hand-rolled SVG by design.
+
+## Session summary — 2026-08-07: /co cleanup, gauges, congresses
+
+All on the owner's instruction; the index formula and the original 14 laws'
+scores are unchanged.
+
+### Score rail (`components/ScoreRail.tsx`)
+
+- The earlier semicircular `ScoreGauge` was removed on the owner's visual
+  feedback. The replacement is a flat, server-rendered editorial rail: red
+  0–45, grey 45–55, green 55–100, with a two-pixel vertical position mark and
+  visible `0 / 50 neutral / 100` labels. It keeps the threshold readable
+  without pointer arrows, circular instrumentation, or a chart-sized footprint.
+- **Band thresholds aligned to the rail**: `scoreBand()` and its thresholds
+  live in `lib/score-band.ts`; LawCard, PartyScorecards, and ScoreRail share
+  them. The bands are poor < 45, mixed 45–55, good > 55 (formerly 40/60), so
+  a score in the red zone never carries a "neutral" label. Visible effect at
+  the time: score-40 items flipped from grey to red.
+- Score values stay visible as large tabular numerals, and every rail retains a
+  complete accessible label; colour is never the only carrier of meaning.
+
+### Copy removals and renames (owner's instruction)
+
+- Removed from /co: the masthead tagline, the hero caption, the whole
+  "Scoring method / three levers / Coverage & methodology" hero column, the
+  party-section intro, and the "2 of 14 roll call" caveat paragraph. The hero
+  is now a single full-width panel with the model-attribution strip beneath it
+  (attribution stays — it is the page's core honesty disclosure).
+- Sections renamed: "In discussion" → **Bills in discussion**, "Passed" →
+  **Laws passed**; jump-nav updated and extended to 04 · Declined.
+
+### Declined bills (new section, 5 entries)
+
+- `LawStatus` gained `"declined"`; entries live with the rest in
+  `lib/laws-co.ts`: health reform (archived 9–5 in Senate Seventh Committee,
+  Apr 2024, named committee votes), 2024 tax reform / ley de financiamiento
+  (archived in joint economic commissions, Dec 2024, bloc stances per
+  Semana), education statutory law (died unscheduled, Jun 2024), ley de
+  sometimiento (lapsed with no debate, Jun 2023), political reform (withdrawn
+  by its own sponsors, Mar 2023). Most Colombian bills die by archiving, so
+  several entries carry no tally — stated in the section intro.
+- **Attribution is two-model now.** These five were researched and scored by
+  Claude Fable 5 on 2026-08-07 (`JUDGED_BY_FABLE`, defined above the array it
+  is referenced from); the original 14 stay attributed to Claude Opus 5.
+  `Law.judgedBy` (optional `Attribution`) overrides the page default per
+  entry, and every byline, the hero strip and the scorecard footer name both
+  models. Never fold new judgments under an old model's name.
+- Scorecard side effect, accepted as the mechanical consequence: the
+  committee/bloc stances on declined bills count (voting to archive a
+  below-50 bill scores positively), so the bench grid grew to ~12 cards
+  (MIRA, Colombia Justa Libres, ASI, Cambio Radical now have records) and
+  roll-call coverage is 4 of 19 entries.
+
+### Congress panel (`lib/congress-co.ts`, `components/SeatPie.tsx`)
+
+- Two cards in the Party record section, one per Congress: seat donut
+  (Senate + Chamber combined, per the owner's choice), throughput numbers
+  (bills filed / became law / archived), scope note, and sources.
+- **2022–2026**: 296 seats (108 + 188), initial 20 Jul 2022 allocation;
+  Pacto Histórico's Chamber figure is the 28-seat reading (sources range
+  25–28, disclosed). **2026–2030**: 286 seats (103 + 183, final scrutiny of
+  7 Jul 2026) — the chambers shrank because Comunes' 5+5 guaranteed
+  peace-accord seats expired. All figures researched online 2026-08-07
+  (the 2026 election is past model cutoffs — never write it from memory)
+  and cross-checked against non-Wikipedia sources; every card links its
+  sources. Data does NOT auto-refresh; revisit after CNE recompositions.
+- Throughput numbers are display strings: for the shipped 2022–2026 cohort
+  scope, 3,011 bills were filed, 344 became law, and 2,667 are labelled
+  "Didn't pass." The ≈320 figure is retained only as the rejected alternative
+  scope of laws sanctioned during the window regardless of filing date.
+  2026–2030: 100+ filed per press, 0 approved. Incompatible scopes are never
+  blended into one number.
+- **SeatPie**: annular-sector SVG, no chart lib, aria-hidden with a real-text
+  legend (name + seats + note) carrying identity — never color alone. Colors
+  are the dataviz reference categorical palette as `--viz-1..8` tokens,
+  validated with the palette script against this site's actual surfaces
+  (#ffffff light / #0b1218 dark) in both modes; three light slots sit under
+  3:1 contrast, which the always-on text legend covers (relief rule). A party
+  keeps its slot across both charts (color follows the entity). CITREP peace
+  seats get a dedicated cool grey (`--viz-citrep`), "Others" a warm grey, and
+  slices are ordered strictly by size, which keeps the two greys non-adjacent
+  in the ring — check that ordering if slices are ever edited.
+
+### Gotcha: verifying in a hidden Browser pane
+
+When the preview pane is not open on screen, only the initially-loaded
+viewport ever paints: scrolls time out or repaint nothing, screenshots of
+scrolled content come back blank, and `clientWidth` can report 0 (which makes
+overflow checks lie). The page also sets `scroll-behavior: smooth`, so
+programmatic scrolls animate — and a hidden pane never runs the animation.
+What works: structural checks via `javascript_tool` (with
+`behavior: 'instant'`), and for visuals, extracting the server-rendered
+component markup into a throwaway page under `public/` (linking the app's own
+stylesheets) so the components sit in the first paint. Delete the file after.
 
 ## Session summary — 2026-08-06 evening: audit and hardening
 
@@ -193,13 +399,12 @@ shouldn't define a country's success; broad entrepreneurship should.
   1. Public companies — World Bank `CM.MKT.LDOM.NO`
   2. Stock market size — World Bank `CM.MKT.LCAP.CD`
   3. Population — World Bank `SP.POP.TOTL`
-  4. New businesses — Colombia: World Bank `IC.BUS.NREG`; USA: Census
+  4. New business registrations — Colombia: World Bank `IC.BUS.NREG`; USA: Census
      business applications via FRED `BABATOTALSAUS` (annual sums,
      complete years only)
   5. M2 money supply — Colombia: World Bank broad money `FM.LBL.BMNY.CN`
      (COP); USA: FRED `M2SL` (December levels)
-  6. Birth certificates — estimated births (crude birth rate ×
-     population), both countries
+  6. Estimated births — crude birth rate × population, both countries
 
 ### World ranking tab
 
@@ -210,8 +415,9 @@ color-coded change capsule with
 its explicit base year ("+116% since 2016" — the base year makes gap
 countries self-explanatory, e.g. Venezuela "since 1994"; hidden on
 mobile for width), and the data year. The Index and Change headers
-sort (desc → asc toggle, canonical rank stays in the # column).
-Colombia and the USA rows are highlighted. Mobile (≤640px): the sparkline column is
+sort (desc → asc toggle, canonical rank stays in the # column), and the active
+tab/sort are encoded in the query string so a shared URL restores the same view.
+Colombia and the USA rows are highlighted. Mobile (≤700px): the sparkline column is
 hidden, cell padding tightens, and headers wrap so the table fits
 without horizontal scrolling.
 
@@ -344,23 +550,21 @@ explicitly, and the page says so:
    health reform filed 21 July 2026 (45); the right-to-food amendment rose
    45 → 55 on the same human-capital reasoning.
 
-Every rendered 0–100 scale uses the shared `components/ScoreScale.tsx`
-component. It overlays a visible marker at 50 and prints all three meanings
-under the track (`< 50 lowers index`, `50 neutral`, `> 50 improves index`), so
-readers do not have to infer the threshold from score-band colors.
+Every rendered 0–100 judgment now uses the flat
+`components/ScoreRail.tsx` component. It prints `0 / 50 neutral / 100`, uses a
+vertical position marker, and draws its poor < 45, mixed 45–55, and good > 55
+zones from the constants in `lib/score-band.ts`, so readers do not have to
+infer meaning from color and the visual cannot drift from the card labels.
 
 #### Attribution
 
-Every judgment on the page is signed. `JUDGED_BY` in `lib/laws-co.ts` is the
-single source (model name, model id, vendor, date), rendered in three places: a
-dashed panel in the hero naming `Claude Opus 5` / `claude-opus-5` / Anthropic
-and the date, a one-line byline under each of the 14 law scores, and a byline on
-the bench scorecards. It also states that a different model — or the same one on
-another day — would score some of these differently, and that nothing was
-reviewed or endorsed by the people and parties named. The **curation** is
-attributed too, not just the scores: choosing 14 of ~114 laws was itself a
-judgment. Update `JUDGED_BY` whenever the scores are re-made and the whole page
-follows.
+Every judgment remains signed in the data. `JUDGED_BY` and per-law
+`judgedBy` overrides in `lib/laws-co.ts` hold the model, vendor, and date; the
+current UI consolidates that disclosure in the hero instead of repeating a
+byline on every card and scorecard. It states that another model or date could
+produce different judgments and that the named parties did not endorse them.
+The **curation** is attributed too: choosing which laws to show is itself an
+editorial judgment. Update the attribution records whenever scores are remade.
 
 #### Bench scorecards, and why they're thin
 
@@ -501,7 +705,7 @@ codebase — and check the served HTML, not just the source.
 - Alternative index weightings (e.g. log of company count) for
   comparison while the formula is still a draft.
 - Deepen `/co` party coverage by transcribing roll calls from Gaceta del
-  Congreso PDFs — currently 2 of 14 laws have a per-party record, which is
+  Congreso PDFs — currently 4 of 19 entries have a per-party record, which is
   what keeps the bench scorecards thin.
 - Extend the laws treatment to a second country (`/us`), and convert the
   homepage tabs into real routes if that happens.

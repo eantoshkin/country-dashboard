@@ -8,10 +8,11 @@ import { fmtCompact } from "@/lib/format";
 import {
   COLOMBIA_LAWS,
   JUDGED_BY,
-  lawsWithPartyVotes,
+  JUDGED_BY_FABLE,
   partiesWithoutRecord,
   partyScorecards,
 } from "@/lib/laws-co";
+import { CONGRESSES } from "@/lib/congress-co";
 import type { Law } from "@/lib/types";
 
 export const revalidate = 86400;
@@ -19,12 +20,12 @@ export const revalidate = 86400;
 export const metadata: Metadata = {
   title: "Colombia — laws and the Good Country Index",
   description:
-    "Landmark laws passed by Colombia's Congress since 2025 and bills now in discussion, with how each party voted and an editorial score for how much each moves the Good Country Index.",
+    "Landmark laws passed by Colombia's Congress, bills in discussion, and the notable bills that died — with party votes where verified, seat charts for both congresses, and an editorial score for how much each law moves the Good Country Index.",
   alternates: { canonical: "/co" },
   openGraph: {
     title: "Colombia — laws and the Good Country Index",
     description:
-      "14 curated laws with per-party votes where verified, and editorial scores for how much each moves Colombia's Good Country Index.",
+      "19 curated laws and bills — passed, in discussion, and declined — with per-party votes where verified, and editorial scores for how much each moves Colombia's Good Country Index.",
     url: "/co",
     siteName: "Good Country Dashboard",
     type: "article",
@@ -40,6 +41,14 @@ function newestFirst(a: Law, b: Law) {
   return key(b.date).localeCompare(key(a.date));
 }
 
+function SectionReturn() {
+  return (
+    <a className="section-return" href="#page-sections">
+      Section menu
+    </a>
+  );
+}
+
 export default async function ColombiaPage() {
   const countries = await getDashboardData();
   const hero = countries.find((c) => c.code === "COL")?.hero;
@@ -50,6 +59,9 @@ export default async function ColombiaPage() {
   const inDiscussion = COLOMBIA_LAWS.filter(
     (l) => l.status === "in-discussion",
   ).sort(newestFirst);
+  const declined = COLOMBIA_LAWS.filter((l) => l.status === "declined").sort(
+    newestFirst,
+  );
   const cards = partyScorecards(COLOMBIA_LAWS);
   const unrecorded = partiesWithoutRecord(COLOMBIA_LAWS);
 
@@ -60,8 +72,7 @@ export default async function ColombiaPage() {
       <header className="masthead co-masthead">
         <div className="co-header-topline">
           <Link href="/" className="back-btn md-typescale-label-large">
-            <md-icon aria-hidden="true">arrow_back</md-icon>
-            Dashboard
+            Good Country dashboard
           </Link>
           <span className="co-edition md-typescale-label-medium">
             Legislative monitor · 2025–2026
@@ -74,23 +85,23 @@ export default async function ColombiaPage() {
           <h1 className="md-typescale-headline-medium">
             Colombia — what Congress is actually doing
           </h1>
-          <p className="subtitle md-typescale-body-large">
-            A sourced ledger of the laws that could widen—or narrow—the
-            country&apos;s public economy.
-          </p>
         </div>
-        <nav className="co-jump-nav" aria-label="On this page">
-          <a href="#parties">
-            <span>01</span> Party record
-          </a>
-          <a href="#in-discussion">
-            <span>02</span> In discussion
-          </a>
-          <a href="#passed">
-            <span>03</span> Passed
-          </a>
-        </nav>
       </header>
+
+      <nav className="co-jump-nav" id="page-sections" aria-label="On this page">
+        <a href="#parties">
+          <span>01</span> Party record
+        </a>
+        <a href="#in-discussion">
+          <span>02</span> Bills in discussion
+        </a>
+        <a href="#passed">
+          <span>03</span> Laws passed
+        </a>
+        <a href="#declined">
+          <span>04</span> Declined
+        </a>
+      </nav>
 
       <main id="main-content">
         <section className="co-overview" aria-labelledby="index-heading">
@@ -122,90 +133,29 @@ export default async function ColombiaPage() {
               <span className="formula-chip md-typescale-label-medium">
                 (market cap × public companies) ÷ population
               </span>
-              <p className="co-index-caption md-typescale-body-medium">
-                Higher scores reward both market value and a broad base of
-                listed companies—not a single national champion.
-              </p>
-            </div>
-
-            <div className="co-hero-notes">
-              <header className="method-heading">
-                <p className="co-eyebrow md-typescale-label-medium">
-                  Scoring method
-                </p>
-                <h2>One score, three economic levers</h2>
-                <p className="md-typescale-body-medium">
-                  Each law receives a 0–100 directional score. The reasoning is
-                  published so the judgment can be challenged.
-                </p>
-              </header>
-              <ol className="lever-list">
-                <li>
-                  <span>01</span>
-                  <div>
-                    <strong>Market value</strong>
-                    <p>Does it help listed firms become more productive?</p>
-                  </div>
-                </li>
-                <li>
-                  <span>02</span>
-                  <div>
-                    <strong>Company pipeline</strong>
-                    <p>Does it help small firms form, finance, and list?</p>
-                  </div>
-                </li>
-                <li>
-                  <span>03</span>
-                  <div>
-                    <strong>People</strong>
-                    <p>
-                      Health and participation count positively; fewer people
-                      never earns credit.
-                    </p>
-                  </div>
-                </li>
-              </ol>
-              <div className="judged-by md-typescale-label-medium">
-                <md-icon aria-hidden="true">smart_toy</md-icon>
-                <span>
-                  <strong>Editorial scores, not measured data.</strong> Judged
-                  and curated by {JUDGED_BY.model} ({JUDGED_BY.vendor}),{" "}
-                  {JUDGED_BY.dateLabel}. Not reviewed or endorsed by the people
-                  and parties named.
-                </span>
-              </div>
-              <details className="method-details">
-                <summary>Coverage &amp; methodology notes</summary>
-                <div className="method-details-body md-typescale-body-medium">
-                  <p>
-                    Congress passed about 114 laws in 2025, roughly a third
-                    ceremonial. These are landmark laws selected by{" "}
-                    {JUDGED_BY.model}, not the full record.
-                  </p>
-                  <p>
-                    Vote records are hand-collected from published sources.
-                    Where a party&apos;s stance could not be verified, it is marked{" "}
-                    <em>Not verified</em> rather than guessed.
-                  </p>
-                  <p>
-                    Population is never treated as a shortcut: a shrinking
-                    country scores better arithmetically, but no law is credited
-                    for producing fewer people.
-                  </p>
-                  <p>
-                    Model identifier: <code>{JUDGED_BY.modelId}</code>.
-                  </p>
-                </div>
-              </details>
             </div>
           </article>
+
+          <div className="judged-by md-typescale-label-medium">
+            <span className="judged-by-label">Editorial methodology</span>
+            <span>
+              <strong>
+                Every 0–100 score on this page is editorial judgment by an AI
+                model, not measured data.
+              </strong>{" "}
+              Laws and parties judged and curated by {JUDGED_BY.model},{" "}
+              {JUDGED_BY.dateLabel}; the declined bills by{" "}
+              {JUDGED_BY_FABLE.model}, {JUDGED_BY_FABLE.dateLabel} (both{" "}
+              {JUDGED_BY.vendor}). Nothing here was reviewed or endorsed by the
+              people and parties named.
+            </span>
+          </div>
         </section>
 
         <PartyScorecards
           cards={cards}
           unrecorded={unrecorded}
-          totalLaws={COLOMBIA_LAWS.length}
-          lawsWithRollCall={lawsWithPartyVotes(COLOMBIA_LAWS)}
+          congresses={CONGRESSES}
         />
 
         <section className="laws-section" id="in-discussion">
@@ -214,9 +164,9 @@ export default async function ColombiaPage() {
               Legislative pipeline · 02
             </p>
             <h2 className="section-heading md-typescale-title-large">
-              In discussion
+              Bills in discussion
               <span className="section-count md-typescale-label-medium">
-                {inDiscussion.length} bills · 2026–2030 Congress
+                {inDiscussion.length} · 2026–2030 Congress
               </span>
             </h2>
           </div>
@@ -229,6 +179,7 @@ export default async function ColombiaPage() {
               <LawCard key={law.slug} law={law} />
             ))}
           </div>
+          <SectionReturn />
         </section>
 
         <section className="laws-section" id="passed">
@@ -237,9 +188,9 @@ export default async function ColombiaPage() {
               Legislative record · 03
             </p>
             <h2 className="section-heading md-typescale-title-large">
-              Passed
+              Laws passed
               <span className="section-count md-typescale-label-medium">
-                {passed.length} laws · 2022–2026 Congress
+                {passed.length} · 2022–2026 Congress
               </span>
             </h2>
           </div>
@@ -248,6 +199,34 @@ export default async function ColombiaPage() {
               <LawCard key={law.slug} law={law} />
             ))}
           </div>
+          <SectionReturn />
+        </section>
+
+        <section className="laws-section" id="declined">
+          <div className="section-heading-wrap">
+            <p className="section-kicker md-typescale-label-medium">
+              Legislative record · 04
+            </p>
+            <h2 className="section-heading md-typescale-title-large">
+              Bills declined or archived
+              <span className="section-count md-typescale-label-medium">
+                {declined.length} · 2022–2026 Congress
+              </span>
+            </h2>
+          </div>
+          <p className="section-intro md-typescale-body-medium">
+            Notable bills that died — archived in committee, expired
+            unscheduled, or withdrawn. Most failed bills in Colombia never get
+            a floor vote, so several entries have no tally: that is the record,
+            not a gap. Scores say how each would have moved the index had it
+            passed.
+          </p>
+          <div className="grid law-grid">
+            {declined.map((law) => (
+              <LawCard key={law.slug} law={law} />
+            ))}
+          </div>
+          <SectionReturn />
         </section>
       </main>
 

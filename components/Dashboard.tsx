@@ -6,7 +6,27 @@ import LineChart from "./LineChart";
 import MetricCard from "./MetricCard";
 import Ranking from "./Ranking";
 import { fmtCompact, fmtDelta } from "@/lib/format";
+import {
+  DEFAULT_DASHBOARD_STATE,
+  readDashboardState,
+  writeDashboardState,
+  type DashboardUrlState,
+  type RankingSortState,
+} from "@/lib/dashboard-state";
 import type { CountryDashboard, RankingEntry } from "@/lib/types";
+
+const VIEW_INDEX = { col: 0, us: 1, ranking: 2 } as const;
+const INDEX_VIEW = ["col", "us", "ranking"] as const;
+
+function updateDashboardUrl(
+  state: DashboardUrlState,
+  mode: "push" | "replace",
+) {
+  const search = writeDashboardState(window.location.search, state);
+  const nextUrl = `${window.location.pathname}${search}${window.location.hash}`;
+  if (mode === "push") window.history.pushState(null, "", nextUrl);
+  else window.history.replaceState(null, "", nextUrl);
+}
 
 export default function Dashboard({
   countries,
@@ -16,6 +36,9 @@ export default function Dashboard({
   ranking: RankingEntry[];
 }) {
   const [selected, setSelected] = useState(0);
+  const [rankingSort, setRankingSort] = useState<RankingSortState>(
+    DEFAULT_DASHBOARD_STATE.sort,
+  );
   const tabsRef = useRef<HTMLElement & { activeTabIndex: number }>(null);
 
   useEffect(() => {
@@ -23,12 +46,41 @@ export default function Dashboard({
   }, []);
 
   useEffect(() => {
+    const syncFromUrl = () => {
+      const state = readDashboardState(window.location.search);
+      const nextSelected = VIEW_INDEX[state.view];
+      setSelected(nextSelected);
+      setRankingSort(state.sort);
+    };
+
+    syncFromUrl();
+    window.addEventListener("popstate", syncFromUrl);
+    return () => window.removeEventListener("popstate", syncFromUrl);
+  }, []);
+
+  useEffect(() => {
     const tabs = tabsRef.current;
     if (!tabs) return;
-    const onChange = () => setSelected(tabs.activeTabIndex);
+    const onChange = () => {
+      const nextSelected = tabs.activeTabIndex;
+      if (nextSelected === selected) return;
+      setSelected(nextSelected);
+      updateDashboardUrl(
+        {
+          view: INDEX_VIEW[nextSelected] ?? "col",
+          sort: rankingSort,
+        },
+        "push",
+      );
+    };
     tabs.addEventListener("change", onChange);
     return () => tabs.removeEventListener("change", onChange);
-  }, []);
+  }, [rankingSort, selected]);
+
+  const onRankingSortChange = (sort: RankingSortState) => {
+    setRankingSort(sort);
+    updateDashboardUrl({ view: "ranking", sort }, "replace");
+  };
 
   const showRanking = selected >= countries.length;
   const country = countries[Math.min(selected, countries.length - 1)];
@@ -84,7 +136,11 @@ export default function Dashboard({
 
       <main id="main-content">
         {showRanking ? (
-          <Ranking entries={ranking} />
+          <Ranking
+            entries={ranking}
+            sort={rankingSort}
+            onSortChange={onRankingSortChange}
+          />
         ) : (
           <>
             <section

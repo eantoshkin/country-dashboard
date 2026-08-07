@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { fmtCompact } from "@/lib/format";
+import { fmtCompact, fmtFull } from "@/lib/format";
 import type { ValueFormat, YearPoint } from "@/lib/types";
 
 const W = 150;
@@ -57,6 +57,8 @@ export default function Sparkline({
   };
 
   const h = hover != null ? points[hover] : null;
+  const first = points[0];
+  const latest = points.at(-1)!;
 
   return (
     <div className="spark-wrap">
@@ -64,7 +66,7 @@ export default function Sparkline({
         ref={svgRef}
         viewBox={`0 0 ${W} ${H}`}
         role="img"
-        aria-label={`Index trend ${minYear}–${maxYear}`}
+        aria-label={`Index trend from ${fmtFull(first.value, format)} in ${first.year} to ${fmtFull(latest.value, format)} in ${latest.year}`}
         onPointerMove={onMove}
         onPointerLeave={() => setHover(null)}
       >

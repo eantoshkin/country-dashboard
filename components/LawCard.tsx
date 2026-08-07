@@ -1,19 +1,16 @@
 import VoteBreakdown from "./VoteBreakdown";
-import ScoreScale from "./ScoreScale";
-import { JUDGED_BY } from "@/lib/laws-co";
+import ScoreRail from "./ScoreRail";
 import type { Law } from "@/lib/types";
-
-/** Bands for the editorial score. The number is always printed too. */
-function band(score: number): "good" | "mixed" | "poor" {
-  if (score >= 60) return "good";
-  if (score >= 40) return "mixed";
-  return "poor";
-}
+import {
+  SCORE_MIXED_MAX,
+  SCORE_MIXED_MIN,
+  scoreBand,
+} from "@/lib/score-band";
 
 const BAND = {
-  good: { label: "Likely raises the index", icon: "trending_up" },
-  mixed: { label: "Neutral or mixed", icon: "trending_flat" },
-  poor: { label: "Likely lowers the index", icon: "trending_down" },
+  good: { label: "Likely raises the index" },
+  mixed: { label: "Neutral or mixed" },
+  poor: { label: "Likely lowers the index" },
 } as const;
 
 /** Renders "2025" as-is and "2025-06-25" as a full date — no invented precision. */
@@ -29,7 +26,7 @@ function fmtDate(date: string): string {
 }
 
 export default function LawCard({ law }: { law: Law }) {
-  const b = band(law.score);
+  const b = scoreBand(law.score);
 
   return (
     <article className={`card law-card band-${b}`}>
@@ -51,46 +48,42 @@ export default function LawCard({ law }: { law: Law }) {
         </div>
       </header>
 
-      {/* Score meter — the visual anchor of the card. */}
+      {/* What the bill is, first — the model's judgment of it second. */}
+      <p className="law-summary md-typescale-body-medium">{law.summary}</p>
+
       <div className={`score-block ${b}`}>
-        <div className="score-top">
-          <md-icon className="score-icon" aria-hidden="true">
-            {BAND[b].icon}
-          </md-icon>
-          <span className="score-label md-typescale-label-medium">
-            {BAND[b].label}
-          </span>
-          <span className="score-num">
-            {law.score}
-            <span className="score-scale">/100</span>
-          </span>
+        <div className="score-block-head">
+          <div>
+            <p className="score-kind md-typescale-label-small">
+              Editorial impact
+            </p>
+            <p className="score-label md-typescale-label-medium">
+              {BAND[b].label}
+            </p>
+          </div>
+          <p className="score-value" aria-hidden="true">
+            <strong>{law.score}</strong><span>/100</span>
+          </p>
         </div>
-        <ScoreScale
+        <ScoreRail
           value={law.score}
-          ariaLabel={`Index impact score ${law.score} out of 100`}
+          ariaLabel={`Editorial index impact ${law.score} out of 100 — below ${SCORE_MIXED_MIN} lowers the index, ${SCORE_MIXED_MIN} to ${SCORE_MIXED_MAX} is neutral, above ${SCORE_MIXED_MAX} improves it`}
         />
         <p className="score-reason md-typescale-label-medium">
           {law.scoreReason}
         </p>
-        <p className="score-by md-typescale-label-small">
-          <md-icon aria-hidden="true">smart_toy</md-icon>
-          <span>
-            Scored by {JUDGED_BY.model} ({JUDGED_BY.vendor}),{" "}
-            {JUDGED_BY.dateLabel} — editorial judgment, not measured data.
-          </span>
-        </p>
       </div>
-
-      <p className="law-summary md-typescale-body-medium">{law.summary}</p>
 
       <details className="law-evidence">
         <summary>
           <span>
-            {law.status === "passed"
-              ? "Voting record & sources"
-              : "Bill record & sources"}
+            {law.status === "in-discussion"
+              ? "Bill record & sources"
+              : law.status === "declined"
+                ? "What happened & sources"
+                : "Voting record & sources"}
           </span>
-          <md-icon aria-hidden="true">expand_more</md-icon>
+          <span className="details-toggle" aria-hidden="true"></span>
         </summary>
         <div className="law-evidence-body">
           {law.tally && (

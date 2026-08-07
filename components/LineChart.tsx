@@ -75,6 +75,8 @@ export default function LineChart({ points, format, height = 210 }: Props) {
   };
 
   const h = hover != null ? points[hover] : null;
+  const first = points[0];
+  const latest = points.at(-1)!;
 
   return (
     <div className="chart-wrap">
@@ -82,7 +84,7 @@ export default function LineChart({ points, format, height = 210 }: Props) {
         ref={svgRef}
         viewBox={`0 0 ${VB_W} ${vbH}`}
         role="img"
-        aria-label={`Chart, ${points.length} years from ${minYear} to ${maxYear}`}
+        aria-label={`Trend chart with ${points.length} annual values, from ${fmtFull(first.value, format)} in ${first.year} to ${fmtFull(latest.value, format)} in ${latest.year}. The full yearly values follow the chart.`}
         onPointerMove={onMove}
         onPointerLeave={() => setHover(null)}
       >
@@ -166,6 +168,28 @@ export default function LineChart({ points, format, height = 210 }: Props) {
           <span>{fmtFull(h.value, format)}</span>
         </div>
       )}
+
+      <details className="chart-data">
+        <summary>View yearly values</summary>
+        <div className="chart-data-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Year</th>
+                <th scope="col">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {points.map((point) => (
+                <tr key={point.year}>
+                  <th scope="row">{point.year}</th>
+                  <td>{fmtFull(point.value, format)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </details>
     </div>
   );
 }
